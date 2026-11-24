@@ -32,6 +32,7 @@ class ApiIntegrationTest {
  @Autowired VotoRepository votes;
  @Autowired ConcursoRepository contest;
  @Autowired SelectWinnerUseCase selectWinner;
+ @Autowired ContestUseCase contestLifecycle;
  @Autowired RedeemPrizeUseCase redeemPrize;
  private MockHttpSession client,admin;
  private long product;
@@ -114,7 +115,7 @@ class ApiIntegrationTest {
  @Test void contestSupportsVoteWinnerReadableQrAndSingleRedemption() throws Exception {
   long id=participate();mvc.perform(post("/api/v1/kappu/"+id+"/votes").session(client).with(csrf())).andExpect(status().isOk()).andExpect(jsonPath("$.votosCount").value(1));
   mvc.perform(post("/api/v1/kappu/"+id+"/votes").session(client).with(csrf())).andExpect(status().isConflict());
-  var result=mvc.perform(post("/api/v1/kappu/select-winner/"+id).session(admin).with(csrf())).andExpect(status().isOk()).andReturn();String code=JsonPath.read(result.getResponse().getContentAsString(),"$.codigoPremio");
+  contestLifecycle.cerrar();var result=mvc.perform(post("/api/v1/kappu/select-winner/"+id).session(admin).with(csrf())).andExpect(status().isOk()).andReturn();String code=JsonPath.read(result.getResponse().getContentAsString(),"$.codigoPremio");
   byte[] png=mvc.perform(get("/api/v1/kappu/"+id+"/qr").session(client)).andExpect(status().isOk()).andExpect(content().contentType(MediaType.IMAGE_PNG)).andReturn().getResponse().getContentAsByteArray();
   var bitmap=new BinaryBitmap(new HybridBinarizer(new BufferedImageLuminanceSource(ImageIO.read(new ByteArrayInputStream(png)))));assertThat(new MultiFormatReader().decode(bitmap).getText()).isEqualTo(code);
   mvc.perform(post("/api/v1/kappu/select-winner/"+id).session(admin).with(csrf())).andExpect(status().isConflict());
@@ -125,7 +126,7 @@ class ApiIntegrationTest {
   mvc.perform(post("/api/v1/kappu/redeem-prize").session(admin).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isConflict());
  }
  @Test void prizeCodesArePrivateToOwnerAndCashier() throws Exception {
-  long id=participate();selectWinner.seleccionarGanador(id);var driver=login("repartidor@radiocafe.com");
+  long id=participate();contestLifecycle.cerrar();selectWinner.seleccionarGanador(id);var driver=login("repartidor@radiocafe.com");
   mvc.perform(get("/api/v1/kappu").session(driver)).andExpect(status().isOk()).andExpect(jsonPath("$[0].codigoPremio").isEmpty());
   mvc.perform(get("/api/v1/kappu/"+id+"/qr").session(driver)).andExpect(status().isForbidden());
  }
@@ -135,10 +136,10 @@ class ApiIntegrationTest {
   try {var a=pool.submit(task);var b=pool.submit(task);start.countDown();return List.of(a.get(15,TimeUnit.SECONDS),b.get(15,TimeUnit.SECONDS));} finally {pool.shutdownNow();}
  }
  @Test void concurrentWinnerSelectionOnlySucceedsOnce() throws Exception {
-  long id=participate();var results=race(()->{try {selectWinner.seleccionarGanador(id);return true;}catch(BusinessException e){return false;}});assertThat(results).containsExactlyInAnyOrder(true,false);
+  long id=participate();contestLifecycle.cerrar();var results=race(()->{try {selectWinner.seleccionarGanador(id);return true;}catch(BusinessException e){return false;}});assertThat(results).containsExactlyInAnyOrder(true,false);
  }
  @Test void concurrentRedemptionOnlySucceedsOnce() throws Exception {
-  long id=participate();String code=selectWinner.seleccionarGanador(id).getCodigoPremio();var results=race(()->{try {redeemPrize.canjearPremioPorCodigo(code);return true;}catch(BusinessException e){return false;}});assertThat(results).containsExactlyInAnyOrder(true,false);
+  long id=participate();contestLifecycle.cerrar();String code=selectWinner.seleccionarGanador(id).getCodigoPremio();var results=race(()->{try {redeemPrize.canjearPremioPorCodigo(code);return true;}catch(BusinessException e){return false;}});assertThat(results).containsExactlyInAnyOrder(true,false);
  }
 
  @Test void personalizationOptionsComeFromServer() throws Exception {

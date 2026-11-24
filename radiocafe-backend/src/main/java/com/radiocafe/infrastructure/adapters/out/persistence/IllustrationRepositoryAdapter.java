@@ -52,7 +52,7 @@ public class IllustrationRepositoryAdapter implements IllustrationRepositoryPort
     private IlustracionKappuEntity toEntity(IlustracionKappu domain) {
         IlustracionKappuEntity entity = new IlustracionKappuEntity();
         entity.setIdIlustracion(domain.getIdIlustracion());
-        entity.setIdUsuario(domain.getIdUsuario());
+        entity.setIdUsuario(domain.getIdUsuario());entity.setNombreParticipante(domain.getNombreParticipante());entity.setDescripcion(domain.getDescripcion());
         entity.setTituloObra(domain.getTituloObra());
         entity.setImagenUrl(domain.getImagenUrl());
         entity.setVotosCount(domain.getVotosCount());
@@ -68,7 +68,7 @@ public class IllustrationRepositoryAdapter implements IllustrationRepositoryPort
     private IlustracionKappu toDomain(IlustracionKappuEntity entity) {
         IlustracionKappu domain = new IlustracionKappu();
         domain.setIdIlustracion(entity.getIdIlustracion());
-        domain.setIdUsuario(entity.getIdUsuario());
+        domain.setIdUsuario(entity.getIdUsuario());domain.setNombreParticipante(entity.getNombreParticipante());domain.setDescripcion(entity.getDescripcion());
         domain.setTituloObra(entity.getTituloObra());
         domain.setImagenUrl(entity.getImagenUrl());
         domain.setVotosCount(entity.getVotosCount());

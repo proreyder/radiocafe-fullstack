@@ -55,6 +55,7 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
         PedidoEntity entity = new PedidoEntity();
         entity.setIdPedido(domain.getIdPedido());
         entity.setVersion(domain.getVersion());
+        entity.setMinutosPreparacion(domain.getMinutosPreparacion());entity.setPreparacionEstimada(domain.getPreparacionEstimada());entity.setNombreBarista(domain.getNombreBarista());
         entity.setStockDescontado(domain.isStockDescontado());
         entity.setFechaCreacion(domain.getFechaCreacion());
         entity.setIdUsuario(domain.getIdUsuario());
@@ -64,6 +65,7 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
         entity.setLatitud(domain.getLatitud());
         entity.setLongitud(domain.getLongitud());
         entity.setSubtotal(domain.getSubtotal());
+        entity.setDescuento(domain.getDescuento());entity.setCodigoCupon(domain.getCodigoCupon());entity.setPromocion(domain.getPromocion());
         entity.setCostoEnvio(domain.getCostoEnvio());
         entity.setTotal(domain.getTotal());
 
@@ -88,6 +90,7 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
         Pedido domain = new Pedido();
         domain.setIdPedido(entity.getIdPedido());
         domain.setVersion(entity.getVersion());
+        domain.setMinutosPreparacion(entity.getMinutosPreparacion());domain.setPreparacionEstimada(entity.getPreparacionEstimada());domain.setNombreBarista(entity.getNombreBarista());
         domain.setStockDescontado(entity.isStockDescontado());
         domain.setIdUsuario(entity.getIdUsuario());
         domain.setEstadoPedido(entity.getEstadoPedido());
@@ -102,6 +105,7 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
             detalle.setPersonalizacionDescripcion(d.getPersonalizacionDescripcion());
             return detalle;
         }).collect(Collectors.toList()));
+        domain.aplicarDescuento(entity.getDescuento(),entity.getCodigoCupon(),entity.getPromocion());
         return domain;
     }
 }

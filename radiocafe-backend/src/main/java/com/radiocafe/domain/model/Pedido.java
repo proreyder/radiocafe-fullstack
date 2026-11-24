@@ -10,6 +10,15 @@ public class Pedido {
     private boolean stockDescontado;
     public boolean isStockDescontado() { return stockDescontado; }
     public void setStockDescontado(boolean value) { stockDescontado=value; }
+    private Integer minutosPreparacion;
+    private java.time.Instant preparacionEstimada;
+    private String nombreBarista;
+    public Integer getMinutosPreparacion() {return minutosPreparacion;}
+    public void setMinutosPreparacion(Integer n) {minutosPreparacion=n;}
+    public java.time.Instant getPreparacionEstimada() {return preparacionEstimada;}
+    public void setPreparacionEstimada(java.time.Instant t) {preparacionEstimada=t;}
+    public String getNombreBarista() {return nombreBarista;}
+    public void setNombreBarista(String n) {nombreBarista=n;}
     private Long idPedido;
     private Long version;
     public Long getVersion() { return version; }
@@ -20,6 +29,16 @@ public class Pedido {
     private String direccionEntrega;
     private Double latitud;
     private Double longitud;
+    private BigDecimal descuento = BigDecimal.ZERO;
+    private String codigoCupon;
+    private String promocion;
+    public BigDecimal getDescuento() {return descuento;}
+    public String getCodigoCupon() {return codigoCupon;}
+    public void setCodigoCupon(String codigo) {this.codigoCupon=codigo;}
+    public String getPromocion() {return promocion;}
+    public void aplicarDescuento(BigDecimal importe,String codigo,String titulo) {
+        this.descuento=importe==null?BigDecimal.ZERO:importe;this.codigoCupon=codigo;this.promocion=titulo;recalcularTotales();
+    }
     private BigDecimal subtotal;
     private BigDecimal costoEnvio;
     private BigDecimal total;
@@ -56,7 +75,7 @@ public class Pedido {
             this.costoEnvio = BigDecimal.ZERO; // PICKUP no cobra envío
         }
 
-        this.total = this.subtotal.add(this.costoEnvio);
+        this.total = this.subtotal.subtract(this.descuento.min(this.subtotal)).add(this.costoEnvio);
     }
 
     public void cambiarEstado(EstadoPedido nuevo) {

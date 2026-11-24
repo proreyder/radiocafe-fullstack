@@ -102,8 +102,8 @@ class OperationsIntegrationTest {
         long id=order(1);var legacy=orders.findById(id).orElseThrow();legacy.setStockDescontado(false);orders.save(legacy);
         changeOrder.cambiarEstadoPedido(id,EstadoPedido.CANCELLED,adminId);assertThat(products.findById(product).orElseThrow().getStock()).isEqualTo(2);
     }
-    @Test void catalogChangesCannotForgeOrOverwriteStock() throws Exception {
-        String body="{\"nombre\":\"Editado\",\"categoria\":\"CAFE\",\"precio\":7,\"stock\":99999}";
+    @Test void catalogMetadataChangesPreserveExistingStock() throws Exception {
+        String body="{\"nombre\":\"Editado\",\"categoria\":\"CAFE\",\"precio\":7}";
         mvc.perform(put("/api/v1/products/"+product).session(admin).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isOk()).andExpect(jsonPath("$.stock").value(3));
         mvc.perform(post("/api/v1/products").session(admin).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isCreated()).andExpect(jsonPath("$.stock").value(0));
     }

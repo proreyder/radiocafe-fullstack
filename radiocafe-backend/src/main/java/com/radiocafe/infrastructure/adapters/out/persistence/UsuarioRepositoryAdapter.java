@@ -18,9 +18,10 @@ e.setNombre(d.nombre());
 e.setCorreo(d.correo());
 e.setPassword(d.password());
 e.setRol(d.rol());
-e.setTelefono(d.telefono());return toDomain(repository.save(e));}
+e.setFotoUrl(d.fotoUrl());e.setDireccion(d.direccion());e.setTelefono(d.telefono());return toDomain(repository.save(e));}
+ public Optional<Usuario> bloquearPorId(Long id) {return repository.bloquearPorId(id).map(this::toDomain);}
  public Optional<Usuario> buscarPorId(Long id) {return repository.findById(id).map(this::toDomain);}
  public Optional<Usuario> buscarPorCorreo(String correo) {return repository.findByCorreo(correo).map(this::toDomain);}
  public boolean existePorCorreo(String correo) {return repository.existsByCorreo(correo);}
- private Usuario toDomain(UsuarioEntity e) {return new Usuario(e.getIdUsuario(),e.getNombre(),e.getCorreo(),e.getPassword(),e.getRol(),e.getTelefono(),e.isActivo(),e.getSeguridadVersion());}
+ private Usuario toDomain(UsuarioEntity e) {return new Usuario(e.getIdUsuario(),e.getNombre(),e.getCorreo(),e.getPassword(),e.getRol(),e.getTelefono(),e.isActivo(),e.getSeguridadVersion(),e.getFotoUrl(),e.getDireccion());}
 }

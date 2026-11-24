@@ -15,7 +15,7 @@ Mostrar el diagrama de `ARQUITECTURA.md` y ubicar dominio, casos de uso, puertos
 5. En administración, agregar un producto y editar su precio. Cerrar sesión, entrar como cliente y actualizar catálogo para ver el cambio compartido. Los pedidos existentes mantienen sus precios anteriores.
 6. Como cliente, abrir Kappu y registrar una obra con una URL HTTPS de imagen accesible. Usar una ilustración propia que pueda mostrarse públicamente; el sistema guarda el enlace y no sube archivos.
 7. Votar. Intentar votar de nuevo para mostrar el rechazo. Para mostrar varios participantes, registrar otras cuentas y obras **antes de confirmar al ganador**.
-8. Como administrador, confirmar un ganador. El concurso se cierra de forma definitiva para esa base de datos. Mostrar código y QR.
+8. Como administrador, fijar fechas y cerrar inscripciones/likes. Mostrar los tres finalistas por likes y elegir a uno como ganador. Mostrar anuncio público, notificación al ganador y QR privado.
 9. Como ganador, entrar a Kappu y mostrar su QR. Como barista, escribir el código o escanearlo con la cámara y confirmar el canje. Repetir el código para demostrar que no se entrega un segundo premio.
 10. Mostrar las pruebas con `mvnw.cmd clean verify` y explicar dos casos: conservar detalles al cambiar estado e impedir doble canje concurrente.
 
@@ -40,7 +40,7 @@ No borrar una base de datos para reiniciar una demostración; usar otra ruta. La
 
 ## Demostración de los módulos nuevos (5 minutos)
 
-1. Como administrador, crear un producto de ensayo desde Catálogo. Mostrar que empieza en stock 0.
+1. Como administrador, crear un producto de ensayo desde Catálogo. Indicar stock inicial en el formulario y mostrar su movimiento en Inventario.
 2. En Inventario, registrar una entrada de 2 unidades con motivo. Mostrar saldo e historial con responsable.
 3. Como cliente, pedir 1 unidad. Volver al administrador y actualizar Inventario: queda 1 y aparece la salida vinculada al pedido.
 4. Cancelar el pedido pendiente. El saldo vuelve a 2 y aparece la devolución. Intentar repetir la cancelación: la API rechaza la transición y no duplica stock.
@@ -50,3 +50,22 @@ No borrar una base de datos para reiniciar una demostración; usar otra ruta. La
 8. Mostrar las pruebas concurrentes de la última unidad y de cancelación. Explicar por qué lectura + escritura sin bloqueo podría duplicar ventas o devoluciones.
 
 No se requieren cuentas adicionales preparadas por código: el propio administrador puede crearlas desde el panel. En Swagger, usar los permisos reales de cada rol; el explorador no habilita acceso administrativo a clientes.
+
+## Demostración de comercio
+
+1. Crear un producto con foto y stock inicial. Editar su stock y mostrar ambos movimientos en Inventario.
+2. Crear una campaña con fechas actuales y un cupón (ejemplo `CAFE10`), indicando porcentaje y compra mínima.
+3. Iniciar sesión como cliente: buscar por nombre, filtrar categoría/precio/disponibilidad y abrir una recomendación.
+4. Agregar productos al carrito, aplicar el cupón y mostrar el descuento. Confirmar un pedido de demostración y verificar su importe en Mis pedidos.
+5. Editar la campaña y volver al pedido: su descuento histórico se conserva.
+6. Publicar una opinión de un producto. Como administrador, ocultarla y mostrar cómo deja de aparecer públicamente.
+7. Enviar una consulta desde Atención; responder como administrador y ver la respuesta desde la cuenta original. Otra cuenta no ve esa consulta.
+8. Cambiar descripción y horario en Mi comercio; comprobarlos en la carta. Repetir la navegación en una pantalla móvil.
+
+## Demostración del turno, notificaciones y carrito
+
+1. Como cliente, agregar productos y abrir el carrito a pantalla completa. Mostrar productos a la izquierda y resumen/pago a la derecha, con el mismo contenido apilado en móvil.
+2. Registrar un pedido de demostración. Como barista, activar disponibilidad dentro de 06:00–20:30 y asignar 15 minutos de preparación al pedido pendiente.
+3. Volver al cliente: comprobar contador de campana y hora estimada en Mis pedidos; el aviso tarda hasta el siguiente polling (8 segundos).
+4. Como barista, informar falta de leche o vasos. Como administrador, abrir el aviso de insumos y consultar Inventario. Registrar una reposición solo cuando corresponda a las unidades de productos terminados del sistema.
+5. Para Kappu, subir obras desde cuentas de cliente, dar likes y cerrar el concurso. Mostrar selección limitada a los finalistas y anuncio en la página pública `/kappu`.

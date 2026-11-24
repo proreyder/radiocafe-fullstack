@@ -8,6 +8,7 @@ import java.util.List;
 public interface UserRepositoryPort {
 
     Usuario guardar(Usuario usuario);
+    Optional<Usuario> bloquearPorId(Long id);
 
     List<Usuario> obtenerTodos();
 

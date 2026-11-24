@@ -1,12 +1,13 @@
-import { useId } from 'react';
+import { useId, useState } from 'react';
 
 /** Local product artwork, used when the catalog has no uploaded image. */
 export default function ProductVisual({ product }) {
   const uid = useId().replaceAll(':', '');
+  const [failedImage, setFailedImage] = useState(null);
   const cold = /cold|frapp|helad/i.test(product.nombre);
   const pastry = product.categoria === 'PASTELERIA';
   const beans = /grano/i.test(product.nombre);
-  if (product.imagenUrl) return <img className="order-product-photo" src={product.imagenUrl} alt={product.nombre} referrerPolicy="no-referrer" />;
+  if (product.imagenUrl && failedImage !== product.imagenUrl) return <img className="order-product-photo" src={product.imagenUrl} alt={product.nombre} referrerPolicy="no-referrer" onError={() => setFailedImage(product.imagenUrl)} />;
   return <svg className="order-product-art" viewBox="0 0 500 360" role="img" aria-label={`Ilustración de ${product.nombre}`}>
     <defs>
       <linearGradient id={`${uid}-coffee`} x1="0" x2="1"><stop stopColor="#b3845b"/><stop offset=".35" stopColor="#e1bb91"/><stop offset=".8" stopColor="#b68254"/><stop offset="1" stopColor="#93633d"/></linearGradient>

@@ -3,15 +3,18 @@
 <link rel="stylesheet" href="/swagger-ui/swagger-ui.css"><style>
 body{margin:0;background:#fffaf3;color:#57341f;font:16px/1.6 system-ui,sans-serif}.intro{background:#8d421d;color:#fff2de;padding:25px max(24px,calc((100vw - 1460px)/2))}.intro h1{font-size:25px;margin:0 0 8px}.intro p{font-size:15px;margin:0;color:#f2d3ad}.intro a{color:#fff2de;margin-right:22px}#swagger-ui{max-width:1460px;margin:auto}.swagger-ui .info{margin:28px 0}.intro code{background:#ffffff20;border-radius:3px;padding:2px 5px}.notice{padding:14px 24px;font-size:14px;background:#fff0d8;color:#89451f}#connection-error{padding:16px;color:#9d2719}
 </style></head><body><header class="intro"><h1>RadioCafé · Explorador de la API</h1><p>1. Abre Autenticación y ejecuta <code>POST /auth/login</code>. 2. Prueba los endpoints según tu rol. Los campos sensibles se ingresan solo en tu servidor local.</p><p><a href="/v3/api-docs" target="_blank" rel="noopener">Contrato OpenAPI JSON</a><a href="/v3/api-docs.yaml" target="_blank" rel="noopener">Contrato YAML</a></p></header>
-<div class="notice">La cookie de sesión y el token CSRF se envían automáticamente. Esto no omite permisos: para inventario y usuarios usa una cuenta autorizada. Las escrituras se guardan en la base de la aplicación.</div><div id="connection-error" role="alert" hidden></div><div id="swagger-ui"></div>
+<div class="notice">La sesión de esta ventana y el token CSRF se envían automáticamente. Inicia sesión en este explorador si lo abriste en una ventana nueva. Esto no omite permisos: para inventario y usuarios usa una cuenta autorizada. Las escrituras se guardan en la base de la aplicación.</div><div id="connection-error" role="alert" hidden></div><div id="swagger-ui"></div>
 <script src="/swagger-ui/swagger-ui-bundle.js"></script><script>
 window.onload=function(){
  SwaggerUIBundle({url:'/v3/api-docs',dom_id:'#swagger-ui',deepLinking:true,displayRequestDuration:true,persistAuthorization:false,withCredentials:true,
   requestInterceptor:async function(request){
    request.credentials='include';
    const method=(request.method||'GET').toUpperCase();
+   const key='radiocafe.window-session';
+   if(!sessionStorage.getItem(key)||(method==='POST'&&request.url.includes('/auth/login')))sessionStorage.setItem(key,crypto.randomUUID());
+   const tab=sessionStorage.getItem(key);request.headers=request.headers||{};request.headers['X-RadioCafe-Tab']=tab;
    if(!['GET','HEAD','OPTIONS'].includes(method)){
-    const response=await fetch('/api/v1/auth/csrf',{credentials:'include',cache:'no-store'});
+    const response=await fetch('/api/v1/auth/csrf',{credentials:'include',cache:'no-store',headers:{'X-RadioCafe-Tab':tab}});
     if(!response.ok)throw new Error('No se pudo obtener el token CSRF.');
     const token=await response.json();request.headers=request.headers||{};request.headers[token.headerName]=token.token;
    }

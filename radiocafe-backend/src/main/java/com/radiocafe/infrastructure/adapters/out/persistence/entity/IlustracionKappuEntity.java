@@ -19,6 +19,8 @@ public class IlustracionKappuEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_ilustracion")
     private Long idIlustracion;
+    @Column(length=100) private String nombreParticipante;
+    @Column(length=2000) private String descripcion;
 
     @Column(name = "id_usuario", nullable = false)
     private Long idUsuario;

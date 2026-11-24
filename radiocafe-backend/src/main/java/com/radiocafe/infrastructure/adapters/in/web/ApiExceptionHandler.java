@@ -11,6 +11,9 @@ import org.springframework.dao.*;
 import java.util.Map;
 @RestControllerAdvice
 public class ApiExceptionHandler {
+ @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class) ResponseEntity<Map<String,String>> uploadTooLarge(Exception e) {return error(HttpStatus.PAYLOAD_TOO_LARGE,"La imagen debe pesar como máximo 5 MB.");}
+ @ExceptionHandler(org.springframework.web.multipart.support.MissingServletRequestPartException.class) ResponseEntity<Map<String,String>> missingFile(Exception e) {return error(HttpStatus.BAD_REQUEST,"Selecciona una imagen JPG o PNG.");}
+ @ExceptionHandler(java.io.UncheckedIOException.class) ResponseEntity<Map<String,String>> imageStorage(Exception e) {return error(HttpStatus.INTERNAL_SERVER_ERROR,"No se pudo acceder al almacenamiento de imágenes. Inténtalo nuevamente.");}
  private ResponseEntity<Map<String,String>> error(HttpStatus status,String message) {return ResponseEntity.status(status).body(Map.of("message",message));}
  @ExceptionHandler(BusinessException.class) ResponseEntity<Map<String,String>> business(BusinessException e) {return error(switch(e.getTipo()){case NO_ENCONTRADO->HttpStatus.NOT_FOUND;case CONFLICTO->HttpStatus.CONFLICT;case INVALIDO->HttpStatus.BAD_REQUEST;case PROHIBIDO->HttpStatus.FORBIDDEN;},e.getMessage());}
  @ExceptionHandler(MethodArgumentNotValidException.class) ResponseEntity<Map<String,String>> validation(MethodArgumentNotValidException e) {return error(HttpStatus.BAD_REQUEST,e.getBindingResult().getFieldErrors().stream().map(x->x.getField()+": "+x.getDefaultMessage()).findFirst().orElse("Datos inválidos."));}

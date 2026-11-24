@@ -29,6 +29,9 @@ public class PedidoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_pedido")
     private Long idPedido;
+    private Integer minutosPreparacion;
+    private java.time.Instant preparacionEstimada;
+    @Column(length=100) private String nombreBarista;
 
     @Column(name = "id_usuario", nullable = false)
     private Long idUsuario;
@@ -49,6 +52,10 @@ public class PedidoEntity {
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
+    @Column(nullable=false,columnDefinition="numeric(10,2) default 0")
+    private BigDecimal descuento = BigDecimal.ZERO;
+    @Column(length=30) private String codigoCupon;
+    @Column(length=120) private String promocion;
 
     @Column(name = "costo_envio", nullable = false, precision = 10, scale = 2)
     private BigDecimal costoEnvio;

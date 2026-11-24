@@ -1,5 +1,55 @@
 # Validación de la entrega
 
+## Cuenta, catálogo y barra del carrito del 23 de noviembre de 2026
+
+- **91 pruebas correctas en H2 y PostgreSQL**, cero fallos/errores. Ocho nuevas pruebas de cuenta cubren actualización exclusiva del propietario, CSRF/validación, contraseña actual, revocación por cuenta conservando admin, contraseña inválida/sin cambio/límite UTF-8, avatar privado y separado, persistencia de foto/dirección durante edición administrativa y actividad de pedidos propios.
+- `npm run build`: correcto.
+- Navegador: Menú conserva buscador/categorías; Catálogo muestra variedades separadas. Se comprobó la ausencia de Actualizar menú.
+- Navegador: el carrito abierto muestra una sola cabecera visible con topbar, navegación, campana y perfil. Se accedió al perfil desde el carrito y al volver se conservó el producto; navegar a Catálogo desde la cabecera del carrito también funcionó.
+- Navegador: datos personales, campos de contraseña actual/nueva/confirmación, foto, actividad privada y cierre desde el perfil. A 390 × 844, contenido de 375 px sin desbordamiento horizontal. No se cambiaron contraseñas, fotos o datos personales de las cuentas principales durante la revisión; esos casos se probaron en la base de pruebas.
+- Copia previa de PostgreSQL en `radiocafe-backend/data/backups/radiocafe-pre-perfil-20261123.sql`, excluida de Git. Se añadieron foto y dirección a usuarios mediante actualización de esquema.
+
+## Operación, checkout y Kappu del 23 de noviembre de 2026
+
+- **83 pruebas correctas en H2 y PostgreSQL**, cero fallos/errores (`probar-postgres.ps1`, solo `radiocafe_test`). Doce nuevas pruebas cubren límites de horario en Lima y turno diario; permisos; estimación persistida y envío al cliente; cambios de estado; avisos de insumos y privacidad/lectura; inscripción con archivo real; separación de fotos; fechas/cierre automático; tres finalistas; ganador público sin código privado y regla de likes.
+- `npm run build`: correcto.
+- Navegador: galería pública sin sesión; carrito completo vacío y con croissant; diálogo de 1280 px de ancho con productos a la izquierda y pago a la derecha. Un solo desplazamiento de pantalla, sin scroll interno de productos.
+- Navegador a 390 × 844: carrito apilado y sin desbordamiento (375 px de contenido), campana, inscripción Kappu con nombre/descripción/archivo, disponibilidad y formulario de insumos del barista. Vista admin con inicio/cierre y cierre manual del concurso.
+- No se confirmaron pedidos, enviaron alertas de ensayo, publicaron ilustraciones ni eligieron ganadores en la base principal durante la revisión de UI. Esas acciones se verificaron en la base de pruebas.
+- Copia previa en `radiocafe-backend/data/backups/radiocafe-pre-operacion-kappu-20261123.sql`, fuera de Git. Se conservaron 7 usuarios, 9 productos, 3 pedidos y 0 ilustraciones tras añadir las tablas/columnas. La aplicación principal sigue utilizando PostgreSQL.
+
+## Sesiones por ventana y opiniones del 23 de noviembre de 2026
+
+- Suite completa: **71 pruebas correctas** en H2 y PostgreSQL (`probar-postgres.ps1` sobre `radiocafe_test`). Ocho pruebas nuevas reproducen dos identidades con la misma HttpSession/cookie y selectores distintos, recargas, cierre aislado, revocación, permisos, CSRF real, selectores inválidos y compatibilidad del contexto legado.
+- Caso de producto nuevo: el admin crea un producto con stock cero y el cliente publica su opinión desde otro selector, compartiendo la cookie; el administrador no puede hacerse pasar por cliente ni publicar una opinión.
+- `npm run build`: correcto.
+- Navegador: admin y cliente abiertos simultáneamente, recarga de ambos conserva `/admin` y `/catalogo` y sus controles correspondientes. Cerrar cliente y recargar admin conserva su acceso.
+- Navegador: producto Latte muestra enlace a opiniones y formulario habilitado para CLIENTE aunque el stock sea cero. No se enviaron opiniones de ensayo a la base principal.
+- Navegador: inicio y recarga de BARISTA muestra **Panel de barista**, pestañas Pedidos y Concurso y canje, sin controles administrativos de catálogo/usuarios; la ventana del admin conserva su identidad.
+- Se adaptó la carga de QR privado para enviar el selector de ventana, manteniendo la autorización del backend y sin publicarlo ni incluir selectores en URLs.
+
+## Ampliación de comercio del 23 de noviembre de 2026
+
+- Suite completa con PostgreSQL real: **63 pruebas, cero fallos, cero errores** (`probar-postgres.ps1`, exclusivamente `radiocafe_test`).
+- Catorce pruebas nuevas: creación/edición y conflictos de stock; historial; permisos; cálculo autoritativo de cupones; instantánea histórica del descuento; reversión de stock ante cupón inválido; promoción automática; no acumulación; mínimos, vigencia y límites; códigos duplicados; comentarios únicos y moderación; privacidad de atención y respuesta; configuración del comercio y recomendaciones.
+- `npm run build`: correcto.
+- Navegador a 390 × 844: búsqueda de croissant devuelve un resultado; detalle con opiniones; carrito con cupón inválido muestra error y bloquea confirmación; formulario de atención; stock inicial/editable y formulario de campañas. Ancho de contenido de 375 px frente a viewport de 390 px, sin desbordamiento horizontal en las vistas comprobadas.
+- Copia previa de la base principal en `radiocafe-backend/data/backups/radiocafe-pre-comercio-20261123.sql` (excluida de Git). Tras la actualización se conservaron los conteos de 5 usuarios, 8 productos y 0 pedidos. Se añadieron cuatro tablas de comercio.
+- Las pruebas de descuentos y mensajes usan la base separada; en la revisión manual no se confirmaron pedidos ni se crearon campañas/comentarios/consultas de ensayo en la base principal.
+
+## Ampliación del 23 de noviembre de 2026: menú e imágenes
+
+- `mvnw.cmd test -q`: 49 pruebas correctas en H2; cero fallos y errores.
+- `probar-postgres.ps1`: 49 pruebas correctas con PostgreSQL real en la base separada `radiocafe_test`.
+- `ProductImagesIntegrationTest`: cinco pruebas nuevas que cubren carga y lectura pública, publicación y edición del producto con foto, biblioteca exclusiva del administrador, roles y CSRF, JPG/PNG, detección por contenido, archivos vacíos/falsos/SVG, límites de tamaño/dimensiones y rutas inválidas.
+- `npm run build`: compilación de producción correcta.
+- Navegador: inicio de sesión del cliente abre `/catalogo` con el menú completo, sin seleccionar el primer producto. Inicio administrativo abre `/admin`; se subió `public/assets/hero-coffe.jpg` a la biblioteca y se comprobó **Usar en producto** y la vista previa. La foto quedó disponible sin crear productos de prueba en la base principal.
+- Registro e inicio de sesión usan la misma navegación final al menú para CLIENTE; el registro autentica la cuenta mediante el flujo existente.
+
+Las fotos subidas se guardan en disco; conservar `uploads/products/` junto con la base al trasladar la aplicación.
+
+## Validación anterior
+
 Fecha: 16 de noviembre de 2026.
 
 ## Comprobaciones realizadas

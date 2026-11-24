@@ -4,8 +4,19 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import Home from './pages/Home';
+import PublicContest from './pages/PublicContest';
+import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
 import ClientCatalog from './pages/ClientCatalog';
+import PublicCatalog from './pages/PublicCatalog';
+import { useAuth } from './context/useAuth';
+
+function CatalogRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return <p className="empty" role="status">Cargando catálogo…</p>;
+  if (!user) return <PublicCatalog />;
+  return <ProtectedRoute allowedRoles={['CLIENTE', 'ADMINISTRADOR']}><ClientCatalog /></ProtectedRoute>;
+}
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -21,14 +32,14 @@ export default function App() {
         <Routes>
           {/* Ruta Pública: Landing Page e Inicio de Sesión */}
           <Route path="/" element={<Home />} />
+          <Route path="/kappu" element={<PublicContest/>}/>
+          <Route path="/perfil" element={<ProtectedRoute><Profile/></ProtectedRoute>}/>
 
-          {/* Ruta Protegida: Acceso para Clientes y Administradores */}
+          {/* Los visitantes pueden consultar la carta; los pedidos requieren sesión. */}
           <Route 
             path="/catalogo" 
             element={
-              <ProtectedRoute allowedRoles={['CLIENTE', 'ADMINISTRADOR']}>
-                <ClientCatalog />
-              </ProtectedRoute>
+              <CatalogRoute />
             } 
           />
 

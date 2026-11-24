@@ -1,0 +1,17 @@
+import { useEffect, useState } from 'react';
+import { Clock3, Coffee, PackageOpen } from 'lucide-react';
+import { api } from '../lib/api';
+import useAction from '../lib/useAction';
+import '../pages/Experience.css';
+export default function BaristaPanel() {
+ const [status,setStatus]=useState(null),[form,setForm]=useState({insumo:'',cantidad:1,unidad:'unidades',detalle:''});const {busy,error,message,action}=useAction();
+ const refresh=async()=>setStatus(await api('/barista/me'));
+ useEffect(()=>{void action(refresh);const timer=setInterval(()=>void refresh().catch(()=>{}),30000);return()=>clearInterval(timer);},[]);
+ const field=name=>({value:form[name],onChange:e=>setForm({...form,[name]:e.target.value})});
+ return <section className="barista-workspace"><div className="barista-presence card"><div className="barista-presence-heading"><Coffee size={30}/><div><p className="eyebrow">MI TURNO</p><h2>Disponibilidad del barista</h2></div></div><span className={`presence-badge ${status?.disponible?'online':'offline'}`}>{status?.disponible?'Disponible':'Fuera de línea'}</span><p><Clock3 size={17}/>06:00 a. m. – 08:30 p. m. · Lima</p><p>Activa tu disponibilidad al empezar el turno. Fuera del horario, tu estado pasa automáticamente a fuera de línea.</p><button className="button" disabled={busy||!status||(!status.enHorario&&!status.disponible)} onClick={()=>action(async()=>setStatus(await api('/barista/availability',{method:'PATCH',body:{disponible:!status.disponible}})),'Estado actualizado.')}>{status?.disponible?'Ponerme fuera de línea':'Estoy disponible'}</button>{status&&!status.enHorario&&<small>En este momento estás fuera del horario de atención.</small>}</div><form className="card stack shortage-form" onSubmit={e=>{e.preventDefault();void action(async()=>{await api('/barista/shortages',{method:'POST',body:{...form,cantidad:Number(form.cantidad)}});setForm({insumo:'',cantidad:1,unidad:'unidades',detalle:''});},'Alerta enviada a la campana de los administradores.');}}><div className="barista-presence-heading"><PackageOpen size={27}/><h2>Reportar falta de insumos</h2></div><div className="form-grid"><label>Insumo<input required maxLength={100} placeholder="Café, leche, vasos…" {...field('insumo')}/></label><label>Cantidad necesaria<input required type="number" min="1" max="100000" step="1" {...field('cantidad')}/></label><label>Unidad<input required maxLength={30} {...field('unidad')}/></label></div><label>Detalle<textarea required minLength={5} maxLength={1000} placeholder="Describe qué necesitas para continuar la preparación." {...field('detalle')}/></label><button className="button secondary" disabled={busy}>Enviar alerta al administrador</button></form>{error&&<p className="notice error" role="alert">{error}</p>}{message&&<p className="notice success" role="status">{message}</p>}</section>;
+}
+export function BaristaAvailability() {
+ const [people,setPeople]=useState([]);
+ useEffect(()=>{let active=true;const load=()=>api('/baristas').then(data=>{if(active)setPeople(data);}).catch(()=>{});void load();const timer=setInterval(load,30000);return()=>{active=false;clearInterval(timer);};},[]);
+ return people.length>0&&<section className="barista-availability" aria-label="Estado de nuestros baristas"><Coffee size={19}/><span>Hoy te atiende</span>{people.map(b=><span key={b.usuario} className={`presence-badge ${b.disponible?'online':'offline'}`}>{b.nombre} · {b.disponible?'Disponible':'Fuera de línea'}</span>)}<small>6:00 a. m. a 8:30 p. m.</small></section>;
+}

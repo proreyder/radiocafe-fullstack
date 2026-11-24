@@ -40,6 +40,14 @@ Todas usan la contraseña **`RadioCafe2026!`**; solo se crean en el perfil demo 
 
 El registro público siempre crea clientes. Las contraseñas se almacenan con BCrypt. No hay contraseñas ni roles de autorización guardados en `localStorage`.
 
+### Fotografías del catálogo
+
+Al iniciar sesión o registrarse, el cliente entra directamente al menú de `/catalogo`, con búsqueda y sugerencias del día. Las cuentas del personal entran a su panel de trabajo.
+
+El administrador puede abrir **Imágenes**, subir una foto y pulsar **Usar en producto**; también puede subirla directamente desde **Catálogo**, al agregar o editar un producto. Completar nombre, categoría y precio y guardar para publicar el producto con su foto. El formulario permite indicar **Stock inicial**; al editar permite cambiar **Stock disponible**. Ambos generan movimientos en **Inventario**, donde también se pueden registrar entradas y ajustes. Si no se indica stock, el producto empieza en cero.
+
+Se aceptan JPG/PNG de hasta 5 MB y 12 megapíxeles. Las fotos se conservan en `radiocafe-backend/uploads/products/`, fuera de Git. La base de datos guarda la URL de cada foto. Conservar tanto la base como esta carpeta al mover el proyecto; también se puede configurar `PRODUCT_IMAGES_DIRECTORY` con una ruta persistente. El cliente ve las fotos en el menú, el detalle y el carrito; el menú se actualiza al regresar a la ventana, cada 30 segundos mientras está visible o al pulsar **Actualizar menú**.
+
 ## PostgreSQL
 
 El modo demo permite exponer sin instalar PostgreSQL. Para demostrar el cambio de adaptador de base de datos, iniciar Docker Desktop y ejecutar desde la raíz:
@@ -152,7 +160,7 @@ Iniciar la aplicación como se indica arriba y entrar con una cuenta de administ
 ### Inventario
 
 - Stock por producto, compartido entre sus distintas personalizaciones.
-- Los productos nuevos creados desde el catálogo empiezan en **0**; su primera entrada se registra con cantidad positiva y motivo en Inventario.
+- El administrador indica **Stock inicial** al crear un producto y puede editar **Stock disponible** después. Si omite el campo, empieza en cero. Cada cambio genera un movimiento; los ajustes de Inventario continúan disponibles.
 - En modo demo, los productos existentes sin control de stock se inicializan **una sola vez con 50 unidades** y un movimiento `INICIAL`. Es un saldo de demostración que debe ajustarse al inventario real. Fuera del modo demo, los productos sin saldo empiezan en cero.
 - Un pedido descuenta stock y registra un movimiento `VENTA` en la misma transacción. Una falta de stock revierte el pedido completo, sin consumos parciales.
 - Cancelar un pedido que descontó stock lo devuelve exactamente una vez (`DEVOLUCION`). Los pedidos históricos anteriores al inventario no generan devoluciones ficticias.
@@ -174,6 +182,74 @@ No se permite desactivar la propia cuenta ni quitarse el rol de administrador. L
 - Contrato JSON: **http://127.0.0.1:8080/v3/api-docs**
 - Swagger UI estándar: **http://127.0.0.1:8080/swagger-ui.html**
 
-El explorador recomendado usa Swagger UI y solicita un token CSRF antes de cada escritura. Si ya iniciaste sesión en RadioCafé en el mismo host, reutiliza su cookie; también puedes ejecutar `/auth/login` desde Swagger. No desactiva permisos ni CSRF. Las escrituras del explorador se guardan realmente en la base de la aplicación.
+El explorador recomendado usa Swagger UI y solicita un token CSRF antes de cada escritura. El explorador tiene una identidad independiente por ventana: inicia sesión con `/auth/login` desde Swagger. No desactiva permisos ni CSRF. Las escrituras del explorador se guardan realmente en la base de la aplicación.
 
-La suite ampliada contiene **44 pruebas** y fue ejecutada contra PostgreSQL real con `probar-postgres.ps1`, usando exclusivamente `radiocafe_test`. Incluye compra concurrente de la última unidad, cancelación concurrente, reversión completa, protección de usuarios y generación de OpenAPI.
+La suite ampliada contiene **91 pruebas** y fue ejecutada contra PostgreSQL real con `probar-postgres.ps1`, usando exclusivamente `radiocafe_test`. Incluye compra concurrente de la última unidad, cancelación concurrente, reversión completa, protección de usuarios y generación de OpenAPI.
+
+## Comercio y experiencia del cliente
+
+| Requisito | Función disponible |
+| --- | --- |
+| Promociones | Campañas con porcentaje, compra mínima, inicio, fin y activación. Sin código se aplica la mejor promoción automática vigente. |
+| Cupón de descuento | Código reutilizable, normalizado a mayúsculas, validado en el servidor. El carrito muestra el descuento antes de confirmar. |
+| Marketing | Publicación de campañas en inicio y catálogo; panel con campañas, pedidos con promoción y descuentos otorgados. |
+| Atención al usuario | Preguntas frecuentes, consultas privadas y respuestas del administrador desde su panel. |
+| Comentarios | Una opinión con valoración de 1 a 5 por cuenta y producto; el administrador puede ocultar y volver a mostrar comentarios. |
+| Responsive | Formularios, filtros, navegación y módulos adaptados a móvil; tablas anchas con desplazamiento dentro de su contenedor. |
+| Inventarios | Stock inicial y editable desde Catálogo, movimientos auditados, ajustes y descuento/devolución por pedido. |
+| Filtrado y búsqueda | Nombre/descripción sin distinguir tildes, categoría, precio máximo, orden por precio o nombre y disponibilidad. |
+| Recomendaciones | Productos con stock según categorías de pedidos previos y popularidad; cada sugerencia indica el motivo. |
+| Tipo de comercio | Configurable en **Mi comercio**, con descripción, horario, teléfono y correo; venta directa al cliente, delivery y recojo. |
+| Registro de usuarios | Registro público de clientes, acceso por sesión y gestión administrativa de cuentas existentes. |
+
+En administración se agregan **Promociones y marketing**, **Atención al cliente**, **Comentarios** y **Mi comercio**. Las campañas y los datos del comercio se actualizan en las vistas abiertas al regresar a la ventana y cada 30 segundos mientras están visibles. El cliente accede a **Atención** desde el menú y a los comentarios desde el detalle del producto.
+
+Los cupones sustituyen la promoción automática, no se acumulan. El porcentaje se aplica al subtotal de productos; el envío conserva su regla original (gratis desde USD 50 de subtotal, o USD 5). Un cupón inválido impide confirmar el pedido. El backend vuelve a calcular precios y descuento al registrar; guarda importe, título de promoción y código como datos históricos del pedido. Cambiar una campaña no modifica pedidos anteriores. No se aplican descuentos a pedidos ya registrados.
+
+El marketing funciona dentro de RadioCafé: no envía correos ni publica en redes externas. Las recomendaciones usan reglas de historial y popularidad, sin un servicio de IA externo. Los comentarios pertenecen a cuentas autenticadas, sin afirmar que sean compras verificadas.
+
+Antes de incorporar las tablas de comercio se guardó una copia local de PostgreSQL en `radiocafe-backend/data/backups/`, excluida de Git. Las pruebas se ejecutan exclusivamente en bases separadas.
+
+### Búsqueda en dos paneles
+
+En escritorio, el buscador y los filtros quedan a la izquierda y los productos a la derecha. Sin búsqueda ni filtros se muestran hasta cuatro sugerencias del día con stock, seleccionadas con rotación diaria sobre el catálogo y las recomendaciones. Escribir filtra inmediatamente por nombre y descripción, sin pulsar un botón. Borrar la búsqueda o limpiar los filtros recupera las sugerencias; **Ver todo el menú** permite consultar también todos los productos. En móvil los paneles se apilan para conservar el espacio de lectura. Las promociones y los datos del comercio se conservan debajo.
+
+## Sesiones independientes por ventana y opiniones
+
+Puedes abrir dos ventanas normales del mismo navegador e iniciar sesión como administrador en una y cliente en otra. Cada ventana conserva su identidad al recargar; cerrar sesión en una no cierra la otra. Tras actualizar esta versión, iniciar sesión de nuevo una vez en cada ventana.
+
+La cookie de sesión sigue siendo HttpOnly. Un UUID por ventana en `sessionStorage` selecciona su contexto de seguridad independiente en el servidor mediante `X-RadioCafe-Tab`; ese UUID no autentica sin la cookie y el inicio de sesión previo. No se guardan roles ni contraseñas en el almacenamiento del navegador. Cada nuevo login renueva el selector para proteger también el caso de duplicar una pestaña. Los cambios de rol/estado revocan solo los contextos de esa cuenta. La expiración de la sesión del navegador o un reinicio del backend requiere volver a entrar.
+
+Todos los productos disponibles, incluidos los recién creados y los que tienen stock cero, muestran su apartado de opiniones al abrir el detalle. El enlace **Ver opiniones del producto** permite llegar al formulario. Solo una cuenta CLIENTE puede publicar; cada cuenta tiene una opinión por producto. El administrador puede consultar y moderar desde Comentarios. Las opiniones no dependen de que el producto permita personalización.
+
+Existe el rol **BARISTA**: su cuenta demo `barista@radiocafe.com` (contraseña demo habitual) abre `/admin` con el título **Panel de barista**, gestión de preparación/recojos y concurso/canje. No tiene acceso a gestión de usuarios, catálogo, campañas o configuración. No existe un rol BARTENDER separado.
+
+## Turno del barista, notificaciones y nuevo carrito
+
+- **Barista → Pedidos / Mi turno e insumos:** activar disponibilidad al comenzar el turno. Horario fijo de 06:00 a 20:30, hora de Lima; fuera de ese horario se muestra fuera de línea. Al día siguiente debe activar de nuevo su turno. El cliente ve el estado de los baristas en el menú.
+- En pedidos **pendientes o en preparación**, el barista indica de 1 a 240 minutos y pulsa **Enviar tiempo al cliente**. Esto inicia la preparación, guarda la hora estimada y envía una notificación al propietario del pedido. La disponibilidad debe estar activa para el barista; el administrador puede gestionar la estimación como supervisor.
+- **Reportar falta de insumos:** indicar insumo, cantidad, unidad y detalle. Todos los administradores activos reciben el aviso con el nombre del barista en su campana, con acceso a Inventario. El aviso no modifica el saldo de productos automáticamente.
+- La **campana** contiene avisos privados, contador sin leer, apertura del recurso relacionado y marcado individual o total. Consulta la API cada 8 segundos mientras la ventana está visible; también se actualiza al volver a la ventana. Los cambios de estado del pedido y los avisos del concurso se guardan en PostgreSQL. No requiere permisos de notificaciones del sistema operativo ni envía correos externos.
+- El **carrito a pantalla completa** coloca productos y entrega a la izquierda y resumen, cupón y pago a la derecha; en móvil se apilan. Usa un solo desplazamiento de pantalla y errores propios del checkout. El pago sigue siendo al recoger/recibir: no se simula un cobro de tarjeta ni se integra una pasarela.
+
+## Concurso Kappu con galería pública
+
+Abrir `/kappu` para visitar la galería sin iniciar sesión. El botón destacado del menú y la invitación de inicio llevan al concurso del zorrito Kappu. **Ver galería** permite explorar y **Participar** muestra el formulario para cuentas de cliente: nombre o nombre artístico, título, descripción y archivo JPG/PNG de hasta 5 MB y 12 megapíxeles. Cada inscripción avisa a los administradores. Las imágenes de concurso se guardan separadas de la biblioteca de productos, dentro de `uploads/products/kappu/`.
+
+El administrador define inicio y cierre en **Concurso y canje** (hora de Lima), o pulsa **Cerrar inscripciones y likes ahora**. Al llegar el plazo, la consulta del estado cierra automáticamente el concurso. Al cerrar se congelan las tres obras con más likes; si hay menos de tres, se usan las disponibles. Los empates se resuelven por fecha de inscripción y luego por ID. Se conserva la regla de un like por cuenta para toda la edición. Las inscripciones y los likes quedan bloqueados después del cierre.
+
+Solo se puede elegir ganador entre los finalistas. La elección es única y definitiva. El ganador se anuncia en la galería pública y en el inicio; recibe una notificación y conserva su QR privado para canjear el premio una sola vez. El público no recibe el código del premio. No se reabre una edición cerrada ni se reinician votos o premios existentes.
+
+## Catálogo y gestión de cuenta
+
+El cliente tiene **Menú** (búsqueda y filtros por categorías, conservados) y **Catálogo** (todas las variedades publicadas con foto, precio y disponibilidad). Se retiró el botón **Actualizar menú**; continúa la actualización automática del catálogo. El carrito a pantalla completa conserva la misma barra superior, navegación, campana y acceso al perfil. Sus productos se conservan por cuenta y ventana al visitar el perfil o recargar; se vacían al confirmar o cerrar sesión.
+
+**Mi perfil** reemplaza a Salir en la barra. Desde su menú o `/perfil`, cada cuenta puede:
+
+- Editar nombre de usuario visible, teléfono y dirección habitual. El correo de acceso se conserva.
+- Subir o quitar su foto (JPG/PNG, hasta 5 MB y 12 megapíxeles). La foto es privada: requiere su sesión y no aparece en la biblioteca de productos ni en la galería.
+- Cambiar contraseña con la actual y confirmar la nueva. Se conserva la ventana que hizo el cambio y se revocan las otras sesiones de esa misma cuenta; las cuentas de otros actores siguen funcionando.
+- Consultar pedidos e importes propios, filtrar por estado y descargar CSV. Los importes distinguen pedidos no cancelados, entregados, cancelados y descuentos. Como el pago es al recibir, no representan cobros confirmados, devoluciones bancarias ni saldo de billetera.
+- Cerrar sesión desde el menú del perfil o la página de cuenta.
+
+Las columnas `foto_url` y `direccion` se añadieron a usuarios sin reemplazar los registros existentes. Las fotos se guardan en `uploads/products/avatars/`, con acceso privado y fuera de Git. Se conservó una copia de PostgreSQL previa en `data/backups/radiocafe-pre-perfil-20261123.sql`.

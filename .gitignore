@@ -8,6 +8,7 @@ radiocafe-backend/.idea/
 radiocafe-backend/.settings/
 # Local data, secrets and tooling
 radiocafe-backend/data/
+radiocafe-backend/uploads/
 .env
 .env.*
 !.env.example

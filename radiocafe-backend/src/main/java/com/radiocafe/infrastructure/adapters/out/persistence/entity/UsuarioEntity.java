@@ -41,6 +41,8 @@ public class UsuarioEntity {
 
     @Column(length = 20)
     private String telefono;
+    @Column(length=300) private String fotoUrl;
+    @Column(length=500) private String direccion;
 
     @Column(name = "fecha_registro", updatable = false)
     private LocalDateTime fechaRegistro;

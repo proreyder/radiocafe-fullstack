@@ -4,6 +4,12 @@ import java.time.LocalDateTime;
 
 public class IlustracionKappu {
 
+    private String nombreParticipante;
+    private String descripcion;
+    public String getNombreParticipante() {return nombreParticipante;}
+    public void setNombreParticipante(String n) {nombreParticipante=n;}
+    public String getDescripcion() {return descripcion;}
+    public void setDescripcion(String d) {descripcion=d;}
     private Long idIlustracion;
     private Long idUsuario;
     private String tituloObra;

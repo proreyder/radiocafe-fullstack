@@ -14,8 +14,10 @@ public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
     private final OrderRepositoryPort orders;
     private final ProductRepositoryPort products;
     private final InventoryRepositoryPort inventory;
-    public CreateOrderUseCaseImpl(OrderRepositoryPort orders,ProductRepositoryPort products,InventoryRepositoryPort inventory) {
-        this.orders=orders;this.products=products;this.inventory=inventory;
+    private final com.radiocafe.domain.ports.in.NotificationUseCase notifications;
+    private final com.radiocafe.domain.ports.in.CommerceUseCase commerce;
+    public CreateOrderUseCaseImpl(OrderRepositoryPort orders,ProductRepositoryPort products,InventoryRepositoryPort inventory,com.radiocafe.domain.ports.in.CommerceUseCase commerce,com.radiocafe.domain.ports.in.NotificationUseCase notifications) {
+        this.orders=orders;this.products=products;this.inventory=inventory;this.commerce=commerce;this.notifications=notifications;
     }
     @Transactional
     public Pedido crearPedido(Pedido pedido) {
@@ -45,11 +47,14 @@ public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
             var p=catalogo.get(entry.getKey());products.guardar(p.conStock(p.stockDisponible()-entry.getValue()));
         }
         pedido.setIdPedido(null);pedido.setEstadoPedido(EstadoPedido.PENDIENTE);pedido.setStockDescontado(true);pedido.recalcularTotales();
+        var descuento=commerce.descuento(pedido.getSubtotal(),pedido.getCodigoCupon());
+        pedido.aplicarDescuento(descuento.importe(),descuento.codigo(),descuento.titulo());
         var guardado=orders.guardar(pedido);
         for(var entry:cantidades.entrySet()) {
             var p=catalogo.get(entry.getKey());
             inventory.registrar(new MovimientoInventario(null,p.idProducto(),p.nombre(),-entry.getValue(),p.stockDisponible()-entry.getValue(),"VENTA","Confirmación de pedido",pedido.getIdUsuario(),guardado.getIdPedido(),LocalDateTime.now()));
         }
+        notifications.enviarRol(Rol.BARISTA,pedido.getIdUsuario(),"PEDIDO","Nuevo pedido #"+guardado.getIdPedido(),"Hay un nuevo pedido pendiente de preparación.","/admin?seccion=orders");
         return guardado;
     }
 }

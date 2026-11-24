@@ -23,12 +23,12 @@ public class ManageUsersUseCaseImpl implements ManageUsersUseCase {
     }
     @Transactional public Usuario actualizar(Long id,String nombre,Rol rol,boolean activo,String telefono,Long actor) {
         users.bloquearAdministradores();administrador(actor);
-        var u=users.buscarPorId(id).orElseThrow(()->BusinessException.noEncontrado("Usuario no encontrado."));
+        var u=users.bloquearPorId(id).orElseThrow(()->BusinessException.noEncontrado("Usuario no encontrado."));
         if(id.equals(actor) && (!activo || rol!=Rol.ADMINISTRADOR)) throw BusinessException.conflicto("No puedes desactivar tu cuenta ni quitarte el rol de administrador.");
         if(u.rol()==Rol.ADMINISTRADOR && u.activo() && (!activo || rol!=Rol.ADMINISTRADOR)
                 && users.obtenerTodos().stream().filter(x->x.activo()&&x.rol()==Rol.ADMINISTRADOR).count()<=1)
             throw BusinessException.conflicto("Debe permanecer al menos un administrador activo.");
         long version=u.seguridadVersion()+((u.rol()!=rol || u.activo()!=activo)?1:0);
-        return users.guardar(new Usuario(id,nombre.strip(),u.correo(),u.password(),rol,telefono,activo,version));
+        return users.guardar(new Usuario(id,nombre.strip(),u.correo(),u.password(),rol,telefono,activo,version,u.fotoUrl(),u.direccion()));
     }
 }

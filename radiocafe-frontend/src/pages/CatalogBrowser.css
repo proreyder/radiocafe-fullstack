@@ -1,0 +1,51 @@
+.catalog-browser { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 2rem; align-items: start; margin: 2rem 0 3rem; }
+.catalog-search-panel { position: sticky; top: 1.5rem; padding: 1.5rem; border: 1px solid #ecd6bf; background: #fff7ec; border-radius: 1rem; }
+.catalog-search-heading { display: flex; align-items: center; gap: .5rem; color: #a8471c; font-size: .78rem; font-weight: 750; letter-spacing: .06em; margin-bottom: 1rem; }
+.catalog-search-panel h2 { font-size: 1.5rem; margin-bottom: .7rem; }
+.catalog-search-panel>p { font-size: .95rem; }
+.catalog-search-form { display: grid; gap: 1.1rem; margin-top: 1.5rem; }
+.catalog-search-form label { font-size: .9rem; }
+.catalog-search-form input, .catalog-search-form select { width: 100%; min-width: 0; font-size: 1rem; }
+.catalog-search-input { position: relative; display: block; }
+.catalog-search-input svg { position: absolute; left: .8rem; top: 50%; transform: translateY(-50%); color: #a8471c; pointer-events: none; }
+.catalog-search-input input { padding-left: 2.4rem; }
+.catalog-search-form .catalog-stock-filter { display: flex; flex-direction: row; align-items: center; gap: .65rem; }
+.catalog-stock-filter input { width: 1rem; height: 1rem; accent-color: #b55320; }
+.catalog-search-panel .catalog-search-note { margin-top: 1.2rem; font-size: .875rem; color: #866b58; }
+.catalog-results-panel { min-width: 0; }
+.catalog-results-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; }
+.catalog-results-heading h2 { font-size: 1.7rem; margin-top: .4rem; }
+.catalog-day { display: flex; align-items: center; gap: .4rem; color: #a24d21; font-size: .875rem; }
+.catalog-result-count { margin: .9rem 0 1.4rem; overflow-wrap: anywhere; }
+.catalog-results-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; }
+.catalog-result-card { display: flex; flex-direction: column; align-items: stretch; text-align: left; gap: .5rem; min-width: 0; padding: .9rem; border: 1px solid #eadbcb; border-radius: .9rem; background: white; color: #573a27; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.catalog-result-card:hover { border-color: #bd632d; box-shadow: 0 5px 20px #713b2410; }
+.catalog-result-card:focus-visible { outline: 3px solid #bd632d; outline-offset: 3px; }
+.catalog-result-image { display: grid; place-items: center; overflow: hidden; width: 100%; aspect-ratio: 1.5; border-radius: .6rem; background: #faf1e4; }
+.catalog-result-image img, .catalog-result-image svg { width: 100%; height: 100%; object-fit: contain; }
+.catalog-result-category { margin-top: .4rem; font-size: .8rem; color: #936e51; }
+.catalog-result-card strong { font-size: 1.05rem; overflow-wrap: anywhere; }
+.catalog-result-description { font-size: .9rem; color: #826955; line-height: 1.5; overflow-wrap: anywhere; }
+.catalog-result-price { color: #ad4c1a; font-weight: 750; margin-top: auto; padding-top: .5rem; }
+.catalog-result-stock { color: #a33e20; font-size: .875rem; }
+.catalog-search-empty { padding: 2.5rem 1.5rem; text-align: center; border: 1px dashed #dfc6aa; border-radius: .9rem; color: #a75424; }
+.catalog-search-empty h3 { margin: .7rem 0; }
+.catalog-search-empty button { margin-top: 1rem; }
+.catalog-see-all { margin-top: 1.4rem; }
+@media(max-width: 760px) {
+  .catalog-browser { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+  .catalog-search-panel { position: static; }
+  .catalog-search-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .catalog-search-form>label:first-child { grid-column: 1 / -1; }
+}
+@media(max-width: 440px) {
+  .catalog-search-panel { padding: 1.1rem; }
+  .catalog-search-form { grid-template-columns: minmax(0, 1fr); }
+  .catalog-results-grid { grid-template-columns: minmax(0, 1fr); }
+  .catalog-results-heading h2 { font-size: 1.5rem; }
+}
+
+.catalog-suggestion-reason { font-size: .8rem; color: #866b58; line-height: 1.5; }
+
+.public-catalog-page article.catalog-result-card { cursor:default; }
+.public-catalog-page article.catalog-result-card:hover { border-color:#eadbcb;box-shadow:none; }

@@ -1,0 +1,66 @@
+/* Commerce additions share the existing orange brand. */
+.commerce-wide { grid-column: 1 / -1; }
+.commerce-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,280px),1fr)); gap: 1rem; }
+.commerce-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.commerce-checkbox { display: flex; align-items: center; gap: .6rem; }
+.commerce-checkbox input { width: auto; accent-color: #b55320; }
+.commerce-showcase { margin: 1.6rem 0 2.5rem; }
+.commerce-showcase h2 { font-size: 1.4rem; margin-bottom: .8rem; }
+.commerce-store { padding: 1.3rem; border-left: 4px solid #c65823; background: #fff7ed; border-radius: .7rem; }
+.commerce-store p { margin: .5rem 0; overflow-wrap: anywhere; }
+.commerce-store>span:last-child { display: block; color: #77513b; margin-top: .8rem; font-size: .9rem; }
+.campaign-banner { padding: 1.4rem; background: #fff0db; color: #66391e; border: 1px solid #edc49c; border-radius: .9rem; overflow-wrap: anywhere; }
+.campaign-banner h3 { margin: .5rem 0; font-size: 1.2rem; }
+.campaign-banner p { margin: .8rem 0; }
+.campaign-banner code { font-size: 1rem; font-weight: 700; border: 1px dashed #b55320; padding: .3rem .6rem; border-radius: .4rem; }
+.campaign-banner small { display: block; line-height: 1.6; }
+.recommendation-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,190px),1fr)); gap: .8rem; }
+.recommendation-card { display: grid; gap: .5rem; border: 1px solid #ead9c6; border-radius: .8rem; background: white; color: #633a25; text-align: left; padding: 1rem; cursor: pointer; }
+.recommendation-card:hover { border-color: #b55320; background: #fff7ed; }
+.recommendation-card:focus-visible { outline: 3px solid #b55320; outline-offset: 2px; }
+.catalog-filters { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; padding: 1.3rem; margin: 1rem 0 2rem; border: 1px solid #ead9c6; border-radius: .8rem; }
+.catalog-filters label { display: grid; gap: .5rem; font-size: 1rem; }
+.catalog-filters .commerce-checkbox { display: flex; }
+.catalog-filters input, .catalog-filters select { min-width: 0; width: 100%; }
+.catalog-filters input[type=checkbox] { width: auto; }
+.catalog-filters>p { grid-column: 1 / -1; }
+.product-reviews { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #ead9c6; }
+.product-reviews h2 { font-size: 1.5rem; }
+.product-review-link { display: inline-block; margin-top: 1rem; color: #ad4c1a; text-decoration: underline; text-underline-offset: .2rem; }
+.product-reviews { scroll-margin-top: 1.5rem; }
+.product-reviews textarea, .support-faq~form textarea, .commerce-wide textarea { min-height: 6rem; }
+.support-faq details { border-top: 1px solid #ead9c6; padding: .8rem 0; }
+.support-faq summary { cursor: pointer; font-weight: 600; }
+.support-faq details p { margin-top: .7rem; }
+.support-reply { background: #fff3e4; border-left: 3px solid #b55320; padding: 1rem; border-radius: .6rem; }
+.support-reply p { margin-top: .6rem; }
+.commerce-metrics { display: flex; flex-wrap: wrap; gap: 1rem; }
+.commerce-metrics>span { background: #fff3e4; padding: 1rem; border-radius: .7rem; flex: 1 1 180px; }
+.commerce-metrics strong { display: block; font-size: 1.6rem; color: #a84617; }
+.home-commerce { max-width: 1100px; padding: 0 1.5rem; margin: 2rem auto; }
+.order-cart-checkout>.coupon-box { display: grid; gap: .65rem; align-items: stretch; }
+.coupon-box label { display: grid; gap: .4rem; }
+.coupon-box input { width: 100%; min-width: 0; }
+.order-cart-checkout>.discount-line { color: #7a481c; }
+@media(max-width:800px) {
+ .ordering-layout .site-header { flex-wrap: wrap; gap: .8rem; padding: 1rem; }
+ .ordering-layout nav { flex-wrap: wrap; gap: .75rem 1.1rem; min-width: 0; }
+ .ordering-layout nav .delivery-header { max-width: 150px; }
+ .tabs { flex-wrap: wrap; }
+ .tabs button { white-space: normal; }
+ .commerce-showcase, .product-reviews { min-width: 0; }
+}
+@media(max-width:480px) {
+ .catalog-filters { grid-template-columns: minmax(0,1fr); padding: 1rem; }
+ .commerce-metrics>span { flex-basis: 100%; }
+ .section-heading { flex-wrap: wrap; gap: .8rem; }
+ .commerce-wide { min-width: 0; }
+ .form-grid { grid-template-columns: minmax(0,1fr); }
+ .form-grid input, .form-grid select, .form-grid textarea { min-width: 0; max-width: 100%; }
+ .support-reply, .campaign-banner { padding: 1rem; }
+ .ordering-layout .user-name { margin-left: 0; }
+ .ordering-content { padding-left: 1rem; padding-right: 1rem; }
+}
+
+.page>.tabs { flex-wrap: wrap; overflow-x: visible; }
+.stack textarea, .form-grid textarea { width: 100%; min-height: 6rem; padding: .8rem; border: 1px solid #dfd1c4; border-radius: .6rem; font: inherit; color: inherit; resize: vertical; }

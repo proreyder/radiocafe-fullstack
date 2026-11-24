@@ -83,3 +83,39 @@ Inventario y usuarios mantienen la misma dirección de dependencias: controlador
 - OpenAPI se genera sobre los adaptadores HTTP; sus anotaciones no se introducen en los modelos del dominio.
 
 El inventario es de **unidades por producto terminado**; no modela recetas, insumos, lotes ni vencimientos. Las variantes consumen la misma existencia del producto base.
+
+## Imágenes de productos
+
+`ProductImagesController` recibe multipart y usa el puerto de entrada `ProductImagesUseCase`. El caso de uso comprueba formato real, tamaño y dimensiones, y recodifica JPG/PNG para quitar metadatos. El puerto de salida `ImageStoragePort` se implementa con `LocalImageStorageAdapter`, que guarda archivos con nombres UUID en una carpeta persistente. No se usan nombres ni rutas proporcionados por el navegador. El dominio conserva la URL en `Producto.imagenUrl`; no depende de HTTP ni del sistema de archivos. Solo el administrador sube o lista fotos; el contenido publicado es de lectura pública y mantiene protección CSRF en las escrituras.
+
+## Comercio y descuentos
+
+`CommerceController` valida DTOs y roles; `CommerceUseCase` expone campañas, descuentos, opiniones, atención, configuración y recomendaciones. `CommerceUseCaseImpl` contiene las reglas y usa `CommerceRepositoryPort`; `CommerceRepositoryAdapter` implementa la persistencia mediante repositorios JPA. Las tablas nuevas son `campanas`, `opiniones`, `consultas_atencion` y `configuracion_comercio`. No se reemplazan las tablas previas.
+
+`CreateOrderUseCaseImpl` calcula el descuento tras obtener precios reales y dentro de la transacción que reserva existencias. El pedido conserva una instantánea del descuento. `PedidoEntity` añade columnas con descuento predeterminado cero para compatibilidad con pedidos históricos. El adaptador rehidrata esa instantánea y no vuelve a consultar campañas al leer pedidos.
+
+`CatalogUseCaseImpl.guardarConStock` bloquea el producto, verifica el saldo anterior cuando se cambian existencias y guarda metadatos, saldo y movimiento en una transacción. La edición de metadatos que mantiene el stock del formulario no revierte ventas concurrentes. Los endpoints existentes de inventario siguen disponibles.
+
+Las recomendaciones se ordenan por afinidad de categoría del historial propio y cantidades vendidas de pedidos no cancelados, excluyendo productos retirados o sin stock. La búsqueda y los filtros operan sobre el catálogo recibido por React. No se incorpora otro servicio ni se cambia la arquitectura del proyecto.
+
+## Aislamiento de sesiones por ventana
+
+`TabSecurityContextRepository` implementa `SecurityContextRepository` y delega a `HttpSessionSecurityContextRepository` con una clave distinta por UUID de ventana. No comparte instancias mutables de repositorio entre solicitudes. `TabSessionHeaderFilter` valida el selector antes de cargar el contexto. Cada identidad se autentica normalmente con Spring Security; el cliente no puede asignarse un rol indicando un encabezado.
+
+`SessionAccountFilter` elimina el contexto de la cuenta revocada sin invalidar los de otras cuentas. Logout limpia el contexto de esa ventana y mantiene la cookie mientras existan otras identidades. La estrategia de login sigue renovando el ID de HttpSession contra fijación de sesión. React conserva solo el selector de ventana en sessionStorage, exige cookie HttpOnly y consulta la cuenta real al recargar. El UUID se renueva al iniciar sesión para evitar que una pestaña duplicada cambie la identidad de su origen.
+
+## Disponibilidad, estimaciones, avisos y concurso
+
+`BaristaUseCase` coordina presencia y estimaciones; `NotificationUseCase` genera avisos privados y operaciones de lectura. Ambos usan `OperationsRepositoryPort`, con adaptador JPA para `barista_disponibilidad` y `notificaciones`. Un `Clock` de infraestructura con zona America/Lima permite validar horarios y fijar el tiempo en pruebas. Los pedidos añaden campos opcionales de minutos, hora estimada y nombre del barista, sin modificar los registros previos.
+
+Los avisos se guardan en la misma transacción de la operación que los origina. Cambios de estado y estimaciones notifican al propietario; las alertas de insumos y las inscripciones se distribuyen a administradores activos. React consulta cada 8 segundos la bandeja de su propia sesión y actualiza pedidos al detectar avisos nuevos. No se añade un servicio externo ni se cambia el aislamiento por ventana.
+
+El concurso añade fechas y cierre al registro global y datos de participante/descripción a las ilustraciones. Cierre, participación, likes y elección usan el mismo bloqueo para congelar un ranking estable de tres finalistas. La galería pública usa DTOs sin códigos de premio. La subida de arte reutiliza la validación y recodificación JPG/PNG con un espacio de almacenamiento y URL separados. Se mantienen ganador único, canje atómico y QR autorizado.
+
+## Perfil de cuenta y barra compartida
+
+`AccountUseCase` añade actualización de perfil, contraseña, foto y consulta de actividad mediante los puertos existentes de usuarios, contraseñas y pedidos. Los cambios de cuenta bloquean la fila del usuario; la gestión administrativa también conserva foto/dirección y utiliza ese bloqueo para no sobrescribir datos concurrentes. `PasswordPort` expone comparación BCrypt además de codificación; `AccountController` valida la entrada y refresca solo el contexto de la ventana que cambió su contraseña.
+
+`Usuario` y su entidad añaden foto y dirección, con constructores de dominio compatibles para los usos anteriores. `ImageStoragePort` separa avatares privados de productos y arte público. La autorización del controlador de avatar requiere propiedad, incluso para administradores.
+
+React reutiliza `SiteHeader` en el layout y dentro del diálogo del checkout, montando una sola cabecera visible. `ProfileMenu` concentra navegación y cierre de sesión; `Profile` ofrece datos, seguridad y actividad. `FullCatalog` es independiente del buscador existente. El carrito se conserva en sessionStorage por ID de cuenta y ventana; los precios siguen recalculándose exclusivamente en el backend al confirmar.
