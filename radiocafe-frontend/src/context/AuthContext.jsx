@@ -15,6 +15,19 @@ export function AuthProvider({ children }) {
   }, []);
   async function login(correo, password) {
     const data = await api('/auth/login', { method: 'POST', body: { correo, password } });
+    if (['CLIENTE','ADMINISTRADOR'].includes(data.role)) {
+      try {
+        const source=JSON.parse(sessionStorage.getItem('radiocafe.cart.guest')||'[]');
+        const targetKey=`radiocafe.cart.${data.idUsuario}`;
+        const existing=JSON.parse(sessionStorage.getItem(targetKey)||'[]');
+        if(Array.isArray(source)&&source.length&&Array.isArray(existing)){
+          const merged=[...existing];
+          for(const line of source){const index=merged.findIndex(x=>x.key===line.key);if(index>=0)merged[index]={...merged[index],cantidad:Math.min(99,merged[index].cantidad+line.cantidad)};else merged.push(line);}
+          sessionStorage.setItem(targetKey,JSON.stringify(merged.slice(0,50)));
+          sessionStorage.removeItem('radiocafe.cart.guest');
+        }
+      } catch { /* La sesión sigue siendo válida si el almacenamiento no está disponible. */ }
+    }
     setUser(data);
     return data;
   }

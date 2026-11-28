@@ -14,6 +14,7 @@ public class NotificationUseCaseImpl implements NotificationUseCase {
  public void leer(Long id,Long usuario) {var n=store.notificacion(id).filter(x->x.usuario().equals(usuario)).orElseThrow(()->BusinessException.noEncontrado("Notificación no encontrada."));store.guardar(new Notificacion(n.id(),n.usuario(),n.emisor(),n.autor(),n.tipo(),n.titulo(),n.mensaje(),n.enlace(),true,n.fecha()));}
  public void leerTodas(Long usuario) {store.leerTodas(usuario);}
  public void enviar(Long usuario,Long actor,String tipo,String titulo,String mensaje,String enlace) {
+  if(usuario==null)return; // Los invitados consultan el seguimiento privado, sin una cuenta ficticia.
   String autor=actor==null?"RadioCafé":users.buscarPorId(actor).map(Usuario::nombre).orElse("RadioCafé");
   store.guardar(new Notificacion(null,usuario,actor,autor,tipo,titulo,mensaje,enlace,false,clock.instant()));
  }

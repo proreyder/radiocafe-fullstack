@@ -55,6 +55,7 @@ public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
             inventory.registrar(new MovimientoInventario(null,p.idProducto(),p.nombre(),-entry.getValue(),p.stockDisponible()-entry.getValue(),"VENTA","Confirmación de pedido",pedido.getIdUsuario(),guardado.getIdPedido(),LocalDateTime.now()));
         }
         notifications.enviarRol(Rol.BARISTA,pedido.getIdUsuario(),"PEDIDO","Nuevo pedido #"+guardado.getIdPedido(),"Hay un nuevo pedido pendiente de preparación.","/admin?seccion=orders");
+        if(pedido.getIdUsuario()==null) notifications.enviarRol(Rol.ADMINISTRADOR,null,"PEDIDO","Pedido de invitado #"+guardado.getIdPedido(),"Nuevo pedido sin cuenta. Los datos de contacto están en el panel de pedidos.","/admin?seccion=orders");
         return guardado;
     }
 }

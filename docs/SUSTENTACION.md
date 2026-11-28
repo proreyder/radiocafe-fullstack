@@ -9,7 +9,7 @@ Mostrar el diagrama de `ARQUITECTURA.md` y ubicar dominio, casos de uso, puertos
 ## Demostración (8–12 minutos)
 
 1. Iniciar backend y frontend siguiendo el README. Entrar con `cliente@radiocafe.com` / `RadioCafe2026!`, o registrar un cliente nuevo con contraseña de ocho caracteres o más.
-2. Agregar productos por debajo de $50 y mostrar el envío de $5. Subir el subtotal a $50 o más y mostrar envío gratis; cambiar a recojo y mostrar envío cero.
+2. Agregar productos por debajo de S/ 50 y mostrar el envío de S/ 5. Subir el subtotal a S/ 50 o más y mostrar envío gratis; cambiar a recojo y mostrar envío cero.
 3. Registrar el pedido. Abrir “Mis pedidos”: mostrar ID, fecha, detalles, total y estado pendiente. Recargar la página para evidenciar persistencia.
 4. Cerrar sesión. Entrar como administrador. Mostrar el mismo pedido y cambiarlo a en preparación y listo. Si es delivery, entrar como repartidor para marcar en camino y entregado; si es recojo, el barista puede entregarlo.
 5. En administración, agregar un producto y editar su precio. Cerrar sesión, entrar como cliente y actualizar catálogo para ver el cambio compartido. Los pedidos existentes mantienen sus precios anteriores.

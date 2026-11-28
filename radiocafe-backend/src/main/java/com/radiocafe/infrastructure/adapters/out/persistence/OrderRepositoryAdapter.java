@@ -59,6 +59,11 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
         entity.setStockDescontado(domain.isStockDescontado());
         entity.setFechaCreacion(domain.getFechaCreacion());
         entity.setIdUsuario(domain.getIdUsuario());
+        if(domain.getContacto()!=null) {
+            entity.setContactoNombre(domain.getContacto().nombre());
+            entity.setContactoTelefono(domain.getContacto().telefono());
+            entity.setContactoCorreo(domain.getContacto().correo());
+        }
         entity.setEstadoPedido(domain.getEstadoPedido());
         entity.setTipoEntrega(domain.getTipoEntrega());
         entity.setDireccionEntrega(domain.getDireccionEntrega());
@@ -93,6 +98,7 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
         domain.setMinutosPreparacion(entity.getMinutosPreparacion());domain.setPreparacionEstimada(entity.getPreparacionEstimada());domain.setNombreBarista(entity.getNombreBarista());
         domain.setStockDescontado(entity.isStockDescontado());
         domain.setIdUsuario(entity.getIdUsuario());
+        if(entity.getContactoNombre()!=null) domain.setContacto(new com.radiocafe.domain.model.ContactoPedido(entity.getContactoNombre(),entity.getContactoTelefono(),entity.getContactoCorreo()));
         domain.setEstadoPedido(entity.getEstadoPedido());
         domain.setTipoEntrega(entity.getTipoEntrega());
         domain.setDireccionEntrega(entity.getDireccionEntrega());

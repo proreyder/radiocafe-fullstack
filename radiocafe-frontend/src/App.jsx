@@ -8,14 +8,14 @@ import PublicContest from './pages/PublicContest';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
 import ClientCatalog from './pages/ClientCatalog';
-import PublicCatalog from './pages/PublicCatalog';
+import GuestTracking from './pages/GuestTracking';
 import { useAuth } from './context/useAuth';
 
 function CatalogRoute() {
   const { user, loading } = useAuth();
   if (loading) return <p className="empty" role="status">Cargando catálogo…</p>;
-  if (!user) return <PublicCatalog />;
-  return <ProtectedRoute allowedRoles={['CLIENTE', 'ADMINISTRADOR']}><ClientCatalog /></ProtectedRoute>;
+  if (!user) return <ClientCatalog key="guest" />;
+  return <ProtectedRoute allowedRoles={['CLIENTE', 'ADMINISTRADOR']}><ClientCatalog key={user.idUsuario} /></ProtectedRoute>;
 }
 
 function ScrollToTop() {
@@ -32,10 +32,10 @@ export default function App() {
         <Routes>
           {/* Ruta Pública: Landing Page e Inicio de Sesión */}
           <Route path="/" element={<Home />} />
-          <Route path="/kappu" element={<PublicContest/>}/>
+          <Route path="/pedido/:id" element={<GuestTracking/>}/><Route path="/mis-pedidos" element={<GuestTracking/>}/><Route path="/kappu" element={<PublicContest/>}/>
           <Route path="/perfil" element={<ProtectedRoute><Profile/></ProtectedRoute>}/>
 
-          {/* Los visitantes pueden consultar la carta; los pedidos requieren sesión. */}
+          {/* La compra como invitado es pública; la cuenta y los paneles conservan su protección. */}
           <Route 
             path="/catalogo" 
             element={

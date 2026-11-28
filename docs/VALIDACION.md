@@ -129,3 +129,8 @@ Resultado actualizado: **44 pruebas**, 0 fallos y 0 errores, ejecutadas contra P
 También se verificaron en navegador los paneles de Inventario y Usuarios, así como una consulta real GET `/api/v1/inventory` ejecutada desde Swagger UI a través de Vite, con respuesta 200 y cookie de administrador. No se crearon cuentas ni ajustes manuales de prueba en la base principal. Al arrancar el nuevo control de stock, los productos existentes sin saldo recibieron un movimiento inicial de demostración de 50 unidades cada uno.
 
 Frontend: compilación de producción y lint correctos. Backend: contrato OpenAPI y recursos Swagger disponibles; la aplicación sigue conectada a `radiocafe` en el puerto 5433. La base H2 y los pedidos históricos se conservaron.
+## Compra sin cuenta (24/11/2026)
+
+Se ejecutaron las 97 pruebas del backend en H2 y en PostgreSQL `radiocafe_test`, sin fallos. Las 6 pruebas nuevas de `GuestOrderIntegrationTest` verifican creación sin cuenta, precio del servidor, reserva de stock, CSRF/validación, token privado, ausencia de datos de contacto en seguimiento, permisos de listas/estados, estimación de preparación y devolución de stock por cancelación.
+
+En navegador se completó una compra ficticia usando H2 en memoria (backend 8081 y frontend 5174): carrito, contacto, confirmación, enlace privado y «Mis pedidos» del invitado. También se verificó que iniciar sesión desde el carrito conserva productos y abre de nuevo el checkout. Las instancias temporales se cerraron; no se crearon pedidos en PostgreSQL principal. La base principal conserva 6 pedidos, 7 usuarios y 10 productos tras el respaldo y la migración. El frontend compila correctamente.

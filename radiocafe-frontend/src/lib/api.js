@@ -32,5 +32,5 @@ export async function api(path, { method = 'GET', body, responseType = 'json', .
   if (path === '/auth/login' || path === '/auth/logout' || path === '/account/password') csrf = null;
   return response.status === 204 ? null : responseType === 'blob' ? response.blob() : response.json();
 }
-export const money = value => new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'USD' }).format(value || 0);
+export const money = value => new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(value || 0);
 export const staffRoles = ['ADMINISTRADOR', 'BARISTA', 'REPARTIDOR'];

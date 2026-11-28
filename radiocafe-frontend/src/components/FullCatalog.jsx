@@ -5,7 +5,7 @@ const categories = { CAFE: 'Cafés y bebidas', PASTELERIA: 'Panadería y pastele
 export default function FullCatalog({ products, onSelect, readOnly = false }) {
   const Card = readOnly ? 'article' : 'button';
   return <section className="full-catalog">
-    <header><p className="eyebrow">TODAS NUESTRAS VARIEDADES</p><h1>El catálogo de RadioCafé</h1><p>{readOnly ? 'Conoce nuestros productos y precios. Inicia sesión para hacer un pedido.' : 'Descubre los productos que vamos sumando a la carta, con sus fotos, precios y disponibilidad.'}</p></header>
+    <h1 className="catalog-accessible-title">Catálogo de productos</h1>
     <nav className="full-catalog-index" aria-label="Categorías del catálogo">
       {Object.entries(categories).filter(([id]) => products.some(p => p.categoria === id)).map(([id, label]) => <a key={id} href={`#variedades-${id.toLowerCase()}`}>{label}</a>)}
     </nav>

@@ -86,7 +86,7 @@ La configuración usa `ddl-auto=update` para facilitar la entrega académica. Un
 - Ficha de producto con tamaño, leche, crema y extras para bebidas configurables; catálogo de recargos entregado por el backend, carrito lateral y barra de cantidad/precio. Administración puede activar la personalización por producto. Las opciones se conservan como instantánea en los detalles del pedido.
 - Pedido con precios consultados en el catálogo por el servidor; se ignoran precios, propietario, ID y estado enviados extra por el navegador.
 - Cantidades de 1 a 99, máximo 50 líneas, dirección obligatoria para delivery.
-- Moneda: **USD**, conservada del planteamiento original. Envío de $5 por debajo de $50; gratis desde $50; recojo sin envío.
+- Moneda: **PEN (soles peruanos)**. Envío de S/ 5 por debajo de S/ 50; gratis desde S/ 50; recojo sin envío.
 - Pago al recoger o recibir. No se ofrece pasarela ni se simula un cobro bancario.
 - Estados: pendiente → en preparación → listo → en camino → entregado para delivery. Recojo pasa de listo a entregado. Solo pendiente/en preparación pueden cancelarse. Los estados terminales no se reabren.
 - El cliente consulta únicamente sus propios pedidos. Los cambios preservan detalles, precios históricos y fecha de creación; control optimista contra actualizaciones simultáneas.
@@ -204,7 +204,7 @@ La suite ampliada contiene **91 pruebas** y fue ejecutada contra PostgreSQL real
 
 En administración se agregan **Promociones y marketing**, **Atención al cliente**, **Comentarios** y **Mi comercio**. Las campañas y los datos del comercio se actualizan en las vistas abiertas al regresar a la ventana y cada 30 segundos mientras están visibles. El cliente accede a **Atención** desde el menú y a los comentarios desde el detalle del producto.
 
-Los cupones sustituyen la promoción automática, no se acumulan. El porcentaje se aplica al subtotal de productos; el envío conserva su regla original (gratis desde USD 50 de subtotal, o USD 5). Un cupón inválido impide confirmar el pedido. El backend vuelve a calcular precios y descuento al registrar; guarda importe, título de promoción y código como datos históricos del pedido. Cambiar una campaña no modifica pedidos anteriores. No se aplican descuentos a pedidos ya registrados.
+Los cupones sustituyen la promoción automática, no se acumulan. El porcentaje se aplica al subtotal de productos; el envío conserva su regla original (gratis desde S/ 50 de subtotal, o S/ 5). Un cupón inválido impide confirmar el pedido. El backend vuelve a calcular precios y descuento al registrar; guarda importe, título de promoción y código como datos históricos del pedido. Cambiar una campaña no modifica pedidos anteriores. No se aplican descuentos a pedidos ya registrados.
 
 El marketing funciona dentro de RadioCafé: no envía correos ni publica en redes externas. Las recomendaciones usan reglas de historial y popularidad, sin un servicio de IA externo. Los comentarios pertenecen a cuentas autenticadas, sin afirmar que sean compras verificadas.
 
@@ -253,3 +253,10 @@ El cliente tiene **Menú** (búsqueda y filtros por categorías, conservados) y 
 - Cerrar sesión desde el menú del perfil o la página de cuenta.
 
 Las columnas `foto_url` y `direccion` se añadieron a usuarios sin reemplazar los registros existentes. Las fotos se guardan en `uploads/products/avatars/`, con acceso privado y fuera de Git. Se conservó una copia de PostgreSQL previa en `data/backups/radiocafe-pre-perfil-20261123.sql`.
+# Compra como invitado
+
+El catálogo y la personalización permiten agregar productos al carrito sin cuenta. En el checkout se puede continuar como invitado (nombre, teléfono y correo) o iniciar sesión conservando el carrito. La dirección solo se solicita para delivery. El pago se realiza al recoger o recibir: no hay cobro en línea ni se marca el pedido como pagado.
+
+Al confirmar se muestra un enlace privado `/pedido/{id}#token` para consultar estado, resumen y tiempo de preparación. Guardarlo antes de cerrar la ventana; no se envían correos automáticamente. Los enlaces recientes se conservan en «Mis pedidos» de la misma ventana. Crear una cuenta después es opcional y no asocia automáticamente pedidos anteriores.
+
+Para una base PostgreSQL existente, respaldar y aplicar [la migración de invitados](docs/migrations/20261124-pedidos-invitados.sql). Los invitados tienen `id_usuario` nulo y datos de contacto por pedido; nunca se crean usuarios ficticios. Los paneles actuales pueden atender, estimar y entregar estos pedidos. Las cuentas siguen siendo necesarias para perfil, historial de cuenta, opiniones y participación/votos en Kappu.

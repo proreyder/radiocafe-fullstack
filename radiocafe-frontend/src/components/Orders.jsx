@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import '../pages/GuestCheckout.css';
 import { money, api } from '../lib/api';
 const labels = { PENDIENTE: 'Pendiente', EN_PREPARACION: 'En preparación', LISTO: 'Listo', EN_CAMINO: 'En camino', ENTREGADO: 'Entregado', CANCELLED: 'Cancelado' };
 function nextStates(order, role) {
@@ -16,6 +17,7 @@ export default function Orders({ orders, role, refresh, action, busy }) {
     {orders.length === 0 ? <p className="empty">Todavía no hay pedidos.</p> : <div className="stack">{[...orders].sort((a,b) => b.idPedido - a.idPedido).map(o => <article className="card order" key={o.idPedido}>
       <div className="section-heading"><strong>Pedido #{o.idPedido}</strong><span className="badge">{labels[o.estadoPedido]}</span></div>
       <p className="muted">{o.fechaCreacion ? new Date(o.fechaCreacion).toLocaleString('es-PE') : ''} · {o.tipoEntrega === 'DELIVERY' ? 'Delivery' : 'Recojo en local'}</p>
+      {role!=='CLIENTE'&&o.contacto&&<div className="guest-contact-summary"><strong>Invitado: {o.contacto.nombre}</strong><span>Tel. {o.contacto.telefono} · {o.contacto.correo}</span><small>Pago al {o.tipoEntrega==='DELIVERY'?'recibir':'recoger'} · Cobrar al entregar</small></div>}
       {o.tipoEntrega === 'DELIVERY' && <p>{o.direccionEntrega}</p>}
       <ul className="order-lines">{o.detalles.map(d => <li key={d.idDetalle}><span>{d.cantidad} × {d.nombreProducto}{d.personalizacionDescripcion && <small className="order-line-configuration">{d.personalizacionDescripcion}</small>}</span><strong>{money(d.subtotalLinea)}</strong></li>)}</ul>
       <div className="totals">{Number(o.descuento) > 0 && <span>Descuento {o.codigoCupon || o.promocion}: −{money(o.descuento)}</span>}<span>Envío: {money(o.costoEnvio)}</span><strong>Total: {money(o.total)}</strong></div>

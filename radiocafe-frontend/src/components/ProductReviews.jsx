@@ -20,7 +20,7 @@ export default function ProductReviews({ product, user }) {
     return () => controller.abort();
   }, [product.idProducto, revision]);
 
-  const ownReview = reviews.some(r => r.usuario === user.idUsuario);
+  const ownReview = reviews.some(r => r.usuario === user?.idUsuario);
   const average = reviews.length ? (reviews.reduce((sum,r) => sum + r.estrellas, 0) / reviews.length).toFixed(1) : null;
   async function publish(e) {
     e.preventDefault();
@@ -38,7 +38,7 @@ export default function ProductReviews({ product, user }) {
     {loadError && <p role="alert" className="notice error">{loadError} <button className="text-button" onClick={() => setRevision(n => n + 1)}>Reintentar</button></p>}
     {error && <p role="alert" className="notice error">{error}</p>}
     {message && <p role="status" className="notice success">{message}</p>}
-    {user.role === 'CLIENTE' ? ownReview ? <p className="notice">Ya compartiste tu opinión sobre este producto.</p> : <form className="card stack" onSubmit={publish}>
+    {user?.role === 'CLIENTE' ? ownReview ? <p className="notice">Ya compartiste tu opinión sobre este producto.</p> : <form className="card stack" onSubmit={publish}>
       <h3>Escribe tu opinión</h3>
       <label>Valoración<select value={stars} onChange={e => setStars(e.target.value)}>{[5,4,3,2,1].map(n => <option key={n} value={n}>{n} de 5 estrellas</option>)}</select></label>
       <label>Comentario<textarea required minLength={3} maxLength={1500} value={text} onChange={e => setText(e.target.value)} placeholder={`¿Qué te pareció ${product.nombre}?`}/></label>

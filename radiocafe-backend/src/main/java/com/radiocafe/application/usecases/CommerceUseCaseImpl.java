@@ -26,7 +26,7 @@ public class CommerceUseCaseImpl implements CommerceUseCase {
   if(code!=null) {
    selected=store.campanas().stream().filter(c->code.equals(c.codigo())).findFirst().orElseThrow(()->BusinessException.conflicto("El cupón no existe."));
    if(!selected.vigente(now)) throw BusinessException.conflicto("El cupón no está vigente.");
-   if(subtotal.compareTo(selected.minimo())<0) throw BusinessException.conflicto("El cupón requiere una compra mínima de "+selected.minimo()+" USD.");
+   if(subtotal.compareTo(selected.minimo())<0) throw BusinessException.conflicto("El cupón requiere una compra mínima de "+selected.minimo()+" soles.");
   } else selected=store.campanas().stream().filter(c->c.codigo()==null && c.vigente(now) && subtotal.compareTo(c.minimo())>=0).max(Comparator.comparing(Campana::porcentaje)).orElse(null);
   if(selected==null) return new Descuento(BigDecimal.ZERO,null,null);
   BigDecimal amount=subtotal.multiply(selected.porcentaje()).divide(new BigDecimal("100"),2,RoundingMode.HALF_UP).min(subtotal);
@@ -58,7 +58,7 @@ public class CommerceUseCaseImpl implements CommerceUseCase {
    if(order.getEstadoPedido()==EstadoPedido.CANCELLED) continue;
    for(var d:order.getDetalles()) {
     populares.merge(d.getIdProducto(),d.getCantidad(),Integer::sum);
-    var p=byId.get(d.getIdProducto());if(order.getIdUsuario().equals(u.idUsuario()) && p!=null) preferencias.merge(p.categoria(),d.getCantidad(),Integer::sum);
+    var p=byId.get(d.getIdProducto());if(u.idUsuario().equals(order.getIdUsuario()) && p!=null) preferencias.merge(p.categoria(),d.getCantidad(),Integer::sum);
    }
   }
   return catalog.stream().filter(p->p.stockDisponible()>0).sorted(Comparator.<Producto>comparingInt(p->preferencias.getOrDefault(p.categoria(),0)*10+populares.getOrDefault(p.idProducto(),0)).reversed().thenComparing(Producto::idProducto)).limit(4)

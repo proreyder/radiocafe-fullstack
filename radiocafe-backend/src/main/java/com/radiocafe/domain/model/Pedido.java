@@ -24,6 +24,9 @@ public class Pedido {
     public Long getVersion() { return version; }
     public void setVersion(Long version) { this.version = version; }
     private Long idUsuario;
+    private ContactoPedido contacto;
+    public ContactoPedido getContacto() { return contacto; }
+    public void setContacto(ContactoPedido contacto) { this.contacto=contacto; }
     private EstadoPedido estadoPedido;
     private TipoEntrega tipoEntrega;
     private String direccionEntrega;
@@ -64,7 +67,7 @@ public class Pedido {
                 .map(DetallePedido::getSubtotalLinea)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Regla de Negocio: Envío Gratis si Subtotal >= $50.00
+        // Regla de Negocio: Envío Gratis si Subtotal >= S/ 50.00
         if (this.tipoEntrega == TipoEntrega.DELIVERY) {
             if (this.subtotal.compareTo(new BigDecimal("50.00")) >= 0) {
                 this.costoEnvio = BigDecimal.ZERO;

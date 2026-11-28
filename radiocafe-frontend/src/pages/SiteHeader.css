@@ -26,3 +26,26 @@
   .artisan-layout .site-chrome .site-header>nav>a:not(.button) { font-size:.8rem; }
   .artisan-layout .site-chrome .site-header>nav>a:last-child[href*="acceso"] { padding:8px 12px; }
 }
+
+.artisan-layout .site-chrome.floating-site-header { position:relative;z-index:75; }
+.artisan-layout .site-chrome.floating-site-header>.site-header { position:fixed;inset:0 0 auto;width:100%;z-index:75;transition:background-color .22s,box-shadow .22s,padding .22s; }
+.artisan-layout .site-chrome.floating-site-header .brand.official-brand { transition:width .22s,height .22s,flex-basis .22s; }
+.artisan-layout .site-chrome.floating-site-header.is-scrolled>.site-header { min-height:80px;padding-top:10px;padding-bottom:10px;background:#fff8edfa;background-image:none;border-bottom:1px solid #dfc5a340;box-shadow:0 4px 24px #45261112;backdrop-filter:blur(14px); }
+.artisan-layout .site-chrome.floating-site-header.is-scrolled .brand.official-brand { width:58px;height:58px;flex-basis:58px;border-radius:11px; }
+.artisan-layout .site-chrome.floating-site-header.is-scrolled>.site-header>nav>a { color:#80502c;text-shadow:none; }
+.artisan-layout .site-chrome.floating-site-header.is-scrolled>.site-header>nav>a.current { color:#bc541d; }
+.artisan-layout .site-chrome.floating-site-header.is-scrolled>.site-header>nav>a:last-child[href*="acceso"] { color:#fffaf3; }
+.artisan-layout.home-layout .site-chrome.is-scrolled .site-header nav .artisan-nav-tab { padding-top:9px;padding-bottom:9px; }
+.artisan-layout.home-layout .site-chrome.is-scrolled .site-header nav .artisan-nav-login { border-radius:8px;clip-path:none; }
+.artisan-layout #nuestra-esencia,.artisan-layout #la-carta,.artisan-layout #comunidad,.artisan-layout .full-catalog-category { scroll-margin-top:145px; }
+.artisan-layout .checkout-screen>.site-chrome.floating-site-header { position:relative;top:auto;z-index:75; }
+.artisan-layout .checkout-screen>.site-chrome.floating-site-header>.site-header { position:fixed;top:0; }
+@media(max-width:700px) {
+ .artisan-layout .site-chrome.floating-site-header.is-scrolled>.site-header { min-height:74px;padding:9px 16px;gap:12px; }
+ .artisan-layout .site-chrome.floating-site-header.is-scrolled .brand.official-brand { width:50px;height:50px;flex-basis:50px;border-radius:9px; }
+ .artisan-layout .site-chrome.floating-site-header.is-scrolled>.site-header>nav { flex:1 1 210px;gap:8px 12px; }
+ .artisan-layout.home-layout .site-chrome.is-scrolled .site-header nav .artisan-nav-tab { font-size:.7rem;padding:4px 0; }
+ .artisan-layout .site-chrome.floating-site-header.is-scrolled>.site-header>nav>a:not(.button) { font-size:.75rem; }
+ .artisan-layout.home-layout .site-chrome.is-scrolled .site-header nav .artisan-nav-login { font-size:.7rem;padding:8px 12px; }
+}
+@media(prefers-reduced-motion:reduce) { .artisan-layout .site-chrome.floating-site-header>.site-header,.artisan-layout .site-chrome.floating-site-header .brand.official-brand { transition:none; } }

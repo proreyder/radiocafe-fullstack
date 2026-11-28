@@ -1,17 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Coffee, Palette, Truck, X, Wheat, Heart } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
 import { staffRoles } from '../lib/api';
 import Layout from '../components/Layout';
+import './HomeHero.css';
 import { CommerceShowcase } from '../components/CommercePanels';
 import { KappuWinnerBanner } from '../components/Contest';
 export default function Home() {
   const { user, login, register } = useAuth();
   const navigate = useNavigate();
+  const [activeSection,setActiveSection]=useState('inicio');
+  useEffect(()=>{
+    let frame=0;
+    const update=()=>{frame=0;const limit=(document.querySelector('.home-layout .site-header')?.getBoundingClientRect().bottom||80)+80;let active='inicio';for(const id of ['nuestra-esencia','la-carta','comunidad']){if(document.getElementById(id)?.getBoundingClientRect().top<=limit)active=id;}setActiveSection(active);};
+    const schedule=()=>{if(!frame)frame=requestAnimationFrame(update);};
+    schedule();window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);
+    return()=>{cancelAnimationFrame(frame);window.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);};
+  },[]);
   const [params] = useSearchParams();
-  const [open, setOpen] = useState(() => !user && params.get('acceso') === 'login');
-  const [registering, setRegistering] = useState(false);
+  const [open, setOpen] = useState(() => !user && ['login','registro'].includes(params.get('acceso')));
+  const [registering, setRegistering] = useState(() => params.get('acceso') === 'registro');
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
@@ -28,15 +37,16 @@ export default function Home() {
     setBusy(true);
     try {
       const account = registering ? await register(nombre, correo, password) : await login(correo, password);
-      navigate(destination(account, 'menu'), { replace: true });
+      navigate(params.get('volver')==='carrito'&&['CLIENTE','ADMINISTRADOR'].includes(account.role)?'/catalogo?carrito=1':destination(account, 'menu'), { replace: true });
     } catch (err) { setError(err.message); } finally { setBusy(false); }
   }
   function enter(section = 'menu') {
     const requested = section === 'kappu' ? 'kappu' : 'menu';
     if (user) navigate(destination(user, requested));
-    else setOpen(true);
+    else navigate('/catalogo');
   }
-  return <Layout navigation={<><a className="artisan-nav-tab current" href="#inicio">Inicio</a><a className="artisan-nav-tab" href="#nuestra-esencia">Nuestra esencia</a><a className="artisan-nav-tab" href="#la-carta">La carta</a><Link className="artisan-nav-tab" to="/catalogo">Catálogo</Link><a className="artisan-nav-tab" href="#comunidad">Comunidad</a>{!user && <button className="artisan-nav-login" onClick={enter}>Iniciar sesión</button>}</>}><main className="artisan-home" id="inicio">
+  const navigation = <><a className={`artisan-nav-tab ${activeSection==='inicio'?'current':''}`} aria-current={activeSection==='inicio'?'location':undefined} href="#inicio">Inicio</a><a className={`artisan-nav-tab ${activeSection==='nuestra-esencia'?'current':''}`} aria-current={activeSection==='nuestra-esencia'?'location':undefined} href="#nuestra-esencia">Nuestra esencia</a><a className={`artisan-nav-tab ${activeSection==='la-carta'?'current':''}`} aria-current={activeSection==='la-carta'?'location':undefined} href="#la-carta">La carta</a><Link className="artisan-nav-tab" to="/catalogo">Catálogo</Link><a className={`artisan-nav-tab ${activeSection==='comunidad'?'current':''}`} aria-current={activeSection==='comunidad'?'location':undefined} href="#comunidad">Comunidad</a>{!user && <button className="artisan-nav-login" onClick={() => setOpen(true)}>Iniciar sesión</button>}</>;
+  return <Layout variant="home" navigation={navigation}><main className="artisan-home" id="inicio">
     <section className="bakery-hero" aria-labelledby="hero-heading"><img className="bakery-hero-photo" src="/images/radiocafe-artesanal-hero.png" alt="Cappuccino, croissants y pan artesanal sobre una mesa de madera" fetchPriority="high"/><div className="bakery-hero-shade"/>
       <div className="bakery-hero-content"><span className="hero-ribbon">CAFÉ DE ESPECIALIDAD & BUENOS MOMENTOS</span><h1 id="hero-heading">Lo bueno se hace<br/><em>con calma.</em></h1><p>Una taza de café, algo recién hecho<br/>y ese momento que es solo tuyo.</p><button className="artisan-cta" onClick={() => navigate('/catalogo')}>Descubre nuestra carta </button><span className="hero-footnote">Sabor que acompaña. Historias que se quedan.</span></div>
       <div className="hero-stamp" aria-hidden="true"><Coffee size={27}/><span>Con cariño,</span><strong>RadioCafé</strong><small>UNA TAZA A LA VEZ</small></div>
@@ -49,12 +59,12 @@ export default function Home() {
     <section className="artisan-offerings paper-section" id="la-carta"><span className="section-flourish">HECHO PARA DISFRUTAR</span><h2>Con sabor a buenos momentos</h2><p className="section-intro">Elige tu antojo. Nosotros ponemos el cariño.</p><div className="offering-grid">
       <article><div className="offering-illustration"><Coffee size={64} strokeWidth={1}/><span className="mini-bean"/></div><h3>Nuestro café</h3><p>Tu bebida favorita, a tu manera. Elige tamaño, leche y ese toque que la hace tuya.</p><button className="ribbon-link" onClick={() => navigate('/catalogo')}>Ver la carta </button></article>
       <article><div className="offering-illustration"><Wheat size={65} strokeWidth={1}/></div><h3>Algo para acompañar</h3><p>Croissants, pasteles y pequeños antojos para convertir una pausa en un buen plan.</p><button className="ribbon-link" onClick={() => navigate('/catalogo')}>Descubrir sabores </button></article>
-      <article><div className="offering-illustration"><Truck size={64} strokeWidth={1}/></div><h3>Donde tú estés</h3><p>Recoge en el local o pide delivery. Envío gratis en pedidos desde $50.</p><button className="ribbon-link" onClick={enter}>Hacer un pedido </button></article>
+      <article><div className="offering-illustration"><Truck size={64} strokeWidth={1}/></div><h3>Donde tú estés</h3><p>Recoge en el local o pide delivery. Envío gratis en pedidos desde S/ 50.</p><button className="ribbon-link" onClick={enter}>Hacer un pedido </button></article>
     </div></section>
     <section className="artisan-community" id="comunidad"><div className="community-art" aria-hidden="true"><div className="community-paper"><Palette size={45} strokeWidth={1}/><span>Un poquito de café.<br/><em>Mucho de ti.</em></span><Heart size={23}/></div><span className="community-doodle">Kappu</span></div><div><span className="section-flourish">MÁS QUE UNA CAFETERÍA</span><h2>Aquí también<br/>se sirve creatividad.</h2><p>Comparte tu arte en el concurso Kappu, vota por tu ilustración favorita y sé parte de nuestra comunidad.</p><button className="artisan-cta" onClick={() => navigate('/kappu')}>Participa en el concurso de Kappu y llévate un premio </button></div></section>
   </main>
   {open && <div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-labelledby="auth-title"><button aria-label="Cerrar" className="icon-close" onClick={() => setOpen(false)}><X /></button>
-    <p className="eyebrow">BIENVENIDO A LA COMUNIDAD</p><h2 id="auth-title">{registering ? 'Crea tu cuenta' : 'Qué bueno verte'}</h2><p>Ingresa para pedir y participar en Kappu.</p>
+    <p className="eyebrow">BIENVENIDO A LA COMUNIDAD</p><h2 id="auth-title">{registering ? 'Crea tu cuenta' : 'Qué bueno verte'}</h2><p>Inicia sesión para guardar tus próximos pedidos y participar en Kappu. También puedes pedir sin registrarte.</p><Link className="text-button" to="/catalogo">Continuar como invitado</Link>
     {error && <p className="notice error" role="alert">{error}</p>}
     <form onSubmit={submit} className="stack">
       {registering && <label>Nombre<input autoFocus required maxLength={100} value={nombre} onChange={e => setNombre(e.target.value)} autoComplete="name" /></label>}

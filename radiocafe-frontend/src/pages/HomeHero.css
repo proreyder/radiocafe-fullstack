@@ -1,0 +1,36 @@
+.artisan-home .bakery-hero { height:auto;min-height:740px; }
+.artisan-layout.home-layout>.site-chrome.floating-site-header { height:0!important; }
+.artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header {
+  background:transparent;border-bottom:0;box-shadow:none;
+}
+.artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav { color:#fff1dc; }
+.artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav>a,
+.artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav>a.artisan-nav-tab { color:#fff1dc;text-shadow:0 1px 8px #170b05a6; }
+.artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav>a.current,
+.artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav>a:hover { color:#ffc780; }
+.artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav>a:focus-visible,
+.artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav>button:focus-visible { outline:2px solid #ffcf91;outline-offset:5px; }
+.artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header .brand.official-brand { box-shadow:0 4px 20px #0c060633;border:1px solid #ffeac430; }
+.artisan-home .bakery-hero .bakery-hero-shade {
+  background:linear-gradient(180deg,#1d0e0873,transparent 45%),linear-gradient(90deg,#291407c9,#2d16097d 42%,#1c0c0614 80%);
+}
+.artisan-home .bakery-hero .bakery-hero-content { padding-top:calc(var(--site-header-expanded-height,116px) + 64px);padding-bottom:86px; }
+@media(min-width:1500px) {
+  .artisan-home .bakery-hero { min-height:790px; }
+  .artisan-home .bakery-hero .bakery-hero-content { padding-top:calc(var(--site-header-expanded-height,116px) + 80px); }
+}
+@media(max-width:760px) {
+  .artisan-home .bakery-hero { min-height:760px; }
+  .artisan-home .bakery-hero .bakery-hero-content { padding-top:calc(var(--site-header-expanded-height,100px) + 48px);padding-bottom:100px; }
+  .artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header { gap:16px; }
+  .artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav { gap:8px 12px; }
+  .artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav>a.artisan-nav-tab { font-size:.75rem;padding:5px 0; }
+  .artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav>.artisan-nav-login { font-size:.75rem;padding:9px 14px; }
+}
+@media(max-width:520px) {
+  .artisan-home .bakery-hero { min-height:780px; }
+  .artisan-home .bakery-hero .bakery-hero-content { padding-top:calc(var(--site-header-expanded-height,100px) + 42px);padding-bottom:120px; }
+  .artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav { flex-basis:210px;gap:8px 12px; }
+  .artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav>a.artisan-nav-tab { font-size:.7rem; }
+  .artisan-layout.home-layout .site-chrome:not(.is-scrolled) .site-header>nav>.artisan-nav-login { font-size:.7rem;padding:8px 12px; }
+}

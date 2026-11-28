@@ -3,7 +3,7 @@ import { useAuth } from '../context/useAuth';
 import SiteHeader from './SiteHeader';
 export default function Layout({ children, variant = 'default', navigation, tools, hideHeader = false }) {
   const { user } = useAuth();
-  return <div className={`app-layout artisan-layout ${variant === 'ordering' ? 'ordering-layout' : ''}`}>
+  return <div className={`app-layout artisan-layout ${variant === 'ordering' ? 'ordering-layout' : variant === 'home' ? 'home-layout' : ''}`}>
     {!hideHeader&&<SiteHeader navigation={navigation} tools={tools}/>}
     {children}
     <footer className="artisan-footer"><div><Link className="footer-wordmark" to="/">RadioCafé</Link><p>El sabor de una buena pausa.</p><span>Café de especialidad, sabores artesanales y una comunidad que crea.</span></div>

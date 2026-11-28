@@ -33,8 +33,11 @@ public class PedidoEntity {
     private java.time.Instant preparacionEstimada;
     @Column(length=100) private String nombreBarista;
 
-    @Column(name = "id_usuario", nullable = false)
+    @Column(name = "id_usuario")
     private Long idUsuario;
+    @Column(length=100) private String contactoNombre;
+    @Column(length=30) private String contactoTelefono;
+    @Column(length=150) private String contactoCorreo;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_pedido", nullable = false, length = 30)

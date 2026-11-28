@@ -57,7 +57,7 @@ export default function CatalogBrowser({ products, onSelect }) {
         <label>Buscar productos<span className="catalog-search-input"><Search size={19} aria-hidden="true"/><input type="search" placeholder="Café, croissant, pan…" value={search} aria-controls={resultsId} onChange={e => { setSearch(e.target.value); setShowAll(false); }}/></span></label>
         <label>Categoría<select value={category} aria-controls={resultsId} onChange={e => { setCategory(e.target.value); setShowAll(false); }}><option value="">Todas las categorías</option>{Object.entries(categories).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label>Ordenar<select value={sort} onChange={e => { setSort(e.target.value); setShowAll(false); }}><option value="name">Nombre</option><option value="price-asc">Menor precio</option><option value="price-desc">Mayor precio</option></select></label>
-        <label>Precio máximo (USD)<input type="number" min="0" step="0.01" value={maxPrice} onChange={e => { setMaxPrice(e.target.value); setShowAll(false); }}/></label>
+        <label>Precio máximo (S/)<input type="number" min="0" step="0.01" value={maxPrice} onChange={e => { setMaxPrice(e.target.value); setShowAll(false); }}/></label>
         <label className="catalog-stock-filter"><input type="checkbox" checked={inStock} onChange={e => { setInStock(e.target.checked); setShowAll(false); }}/>Solo disponibles</label>
         <button type="button" className="button secondary" onClick={clear}>Limpiar filtros</button>
       </form>

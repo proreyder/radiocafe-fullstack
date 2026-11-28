@@ -63,7 +63,7 @@ Estados: `PENDIENTE`, `EN_PREPARACION`, `LISTO`, `EN_CAMINO`, `ENTREGADO`, `CANC
 
 `Producto` incorpora `personalizable` (booleano). El administrador puede activarlo en el formulario de catálogo. Los productos demo Flat White y Cold Brew admiten personalización; la pastelería, café en grano y combos mantienen su presentación original.
 
-Consultar `GET /products/options` para obtener los códigos y recargos actuales. Los precios siguen en USD. Los detalles aceptan opcionalmente:
+Consultar `GET /products/options` para obtener los códigos y recargos actuales. Los importes se expresan en PEN (soles peruanos). Los detalles aceptan opcionalmente:
 
 ```json
 {
@@ -240,3 +240,13 @@ Contraseña: nueva de 8–72 caracteres y hasta 72 bytes por compatibilidad BCry
 El acceso a avatar comprueba que la URL solicitada sea la foto actual de la cuenta autenticada. No se aceptan rutas de archivo proporcionadas por el cliente; se usan nombres UUID y contenido recodificado sin metadatos. Las fotos previas dejan de ser accesibles por HTTP cuando se cambia o quita la referencia.
 
 Actividad devuelve `{pedidosVigentes,entregados,cancelados,descuentos,movimientos}`. Cada movimiento corresponde a un pedido e incluye ID, fecha, estado, subtotal, descuento, envío, total y unidades. No registra pagos bancarios ni saldo. El CSV se genera en el navegador a partir de esa respuesta privada.
+# Pedidos como invitado
+
+- `GET /api/v1/products/options` y `GET /api/v1/baristas`: consulta pública.
+- `POST /api/v1/commerce/quote`: cotización pública; conserva CSRF. El importe definitivo se calcula de nuevo al crear el pedido.
+- `POST /api/v1/guest/orders`: público con CSRF. JSON `{ "contacto": { "nombre": "...", "telefono": "...", "correo": "..." }, "pedido": { "tipoEntrega": "PICKUP", "direccionEntrega": null, "detalles": [{ "idProducto": 1, "cantidad": 1 }], "codigoCupon": null } }`. Personalización igual que en `/orders`. Respuesta 201: `{ "pedido": { ...resumen }, "seguimientoToken": "..." }`. El servidor calcula precios/descuentos y reserva stock dentro de la misma transacción que registra el acceso privado.
+- `GET /api/v1/guest/orders/{id}` con `X-Order-Token`: devuelve estado, líneas, importes, modalidad y ETA. Sin token o con un token incorrecto responde 404, incluso conociendo el ID. No devuelve contacto, dirección, identificadores de cuenta ni el secreto almacenado. Respuestas de creación/seguimiento usan `Cache-Control: no-store`.
+
+El token tiene 256 bits aleatorios y se almacena únicamente como SHA-256, en una tabla separada. El frontend lo coloca en el fragmento del enlace (no en la URL enviada al servidor) y lo transmite por la cabecera al consultar. Conservar el enlace: permite consultar ese pedido y no autoriza editarlo, listar otros ni gestionar estados. El seguimiento se actualiza cada 8 segundos con la página visible; no hay envío automático de email ni cobros en línea.
+
+`POST /orders` y las listas privadas mantienen su autenticación y permisos originales. El personal ve el contacto del invitado en sus paneles. Los cambios de estado y estimaciones se reflejan en el enlace privado; para invitados no se insertan notificaciones con destinatarios ficticios.
