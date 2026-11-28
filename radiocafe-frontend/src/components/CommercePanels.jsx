@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api, money } from '../lib/api';
 import useAction from '../lib/useAction';
 import '../pages/Commerce.css';
@@ -42,7 +43,7 @@ export function ShopPanel() {
  return <section className="stack"><h2>Tipo de comercio y datos de atención</h2><Notices error={error} message={message}/>{shop && <form className="card form-grid" onSubmit={e => { e.preventDefault(); void action(async () => setShop(await api('/commerce/shop', { method: 'PUT', body: shop })), 'Datos del comercio actualizados.'); }}><label>Nombre del comercio<input required maxLength={100} {...field('nombre')}/></label><label>Tipo de comercio<select {...field('tipoComercio')}>{Object.entries(types).map(([v,t]) => <option key={v} value={v}>{t}</option>)}</select></label><label className="commerce-wide">Descripción<textarea required maxLength={1000} {...field('descripcion')}/></label><label>Horario de atención<input required maxLength={200} {...field('horario')}/></label><label>Teléfono<input maxLength={30} {...field('telefono')}/></label><label>Correo de atención<input type="email" maxLength={150} {...field('correo')}/></label><div className="commerce-wide"><button className="button" disabled={busy}>Guardar datos del comercio</button></div></form>}</section>;
 }
 export { default as ProductReviews } from './ProductReviews';
-export function CommerceShowcase({ onSelect, products }) {
+export function CommerceShowcase({ onSelect, products, compact = false }) {
  const [shop, setShop] = useState(null), [campaigns, setCampaigns] = useState([]), [recommendations, setRecommendations] = useState([]);
  const [loadError, setLoadError] = useState(''), [revision, setRevision] = useState(0);
  const personalized = Boolean(onSelect);
@@ -58,5 +59,6 @@ export function CommerceShowcase({ onSelect, products }) {
   const timer = window.setInterval(refresh, 30000);
   return () => { controller.abort(); clearInterval(timer); window.removeEventListener('focus', refresh); };
  }, [personalized, revision]);
+ if (compact) return campaigns.length > 0 && <section className="home-promotions" aria-label="Promociones vigentes">{campaigns.map(c => <article className="home-promotion" key={c.id}><div className="home-promotion-copy"><span className="home-promotion-label">UN DETALLE PARA TU PRÓXIMA PAUSA</span><h2>{c.porcentaje}% de descuento</h2><p>{c.codigo ? <>Usa el código <strong>{c.codigo}</strong> al hacer tu pedido.</> : 'Descuento aplicado a tu pedido.'}</p><small>Desde {money(c.minimo)} · Hasta {new Date(c.fin).toLocaleDateString('es-PE')} · No acumulable</small></div><Link className="home-promotion-link" to="/catalogo">Explorar el menú <span aria-hidden="true">↗</span></Link></article>)}</section>;
  return <div className="commerce-showcase stack">{loadError && <p className="notice error" role="alert">{loadError} <button className="text-button" onClick={() => setRevision(v => v+1)}>Reintentar</button></p>}{shop && <div className="commerce-store"><span className="eyebrow">{types[shop.tipoComercio]}</span><h2>{shop.nombre}</h2><p>{shop.descripcion}</p><p className="muted">{shop.horario}{shop.telefono && ` · Tel. ${shop.telefono}`}{shop.correo && ` · ${shop.correo}`}</p><span>Venta directa al cliente · Delivery y recojo en local</span></div>}{campaigns.length > 0 && <section className="stack"><h2>Promociones para tu próxima pausa</h2><div className="commerce-grid">{campaigns.map(c => <article className="campaign-banner" key={c.id}><span className="eyebrow">{c.codigo ? 'CUPÓN DE DESCUENTO' : 'PROMOCIÓN AUTOMÁTICA'}</span><h3>{c.titulo}</h3><strong>{c.porcentaje}% de descuento</strong><p>{c.mensaje}</p>{c.codigo && <p>Usa el código <code>{c.codigo}</code> en tu carrito.</p>}<small>Desde {money(c.minimo)} · Hasta {new Date(c.fin).toLocaleDateString('es-PE')}. No acumulable.</small></article>)}</div></section>}{onSelect && recommendations.length > 0 && <section className="stack"><h2>Recomendados para ti</h2><div className="recommendation-grid">{recommendations.map(r => { const p = products?.find(p => p.idProducto === r.producto.idProducto); return p && p.stock > 0 && <button className="recommendation-card" key={p.idProducto} onClick={() => onSelect(p)}><strong>{p.nombre}</strong><span>{money(p.precio)}</span><small>{r.motivo}</small></button>; })}</div></section>}</div>;
 }

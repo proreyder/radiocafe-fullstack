@@ -4,12 +4,11 @@ import { api, money } from '../lib/api';
 import ProductVisual from './ProductVisual';
 import '../pages/CatalogBrowser.css';
 
-const categories = { CAFE: 'Cafés y bebidas', PASTELERIA: 'Pastelería', COMBO: 'Combos' };
+const categories = { CAFE: 'Cafés y bebidas', PASTELERIA: 'Panadería y pastelería', COMBO: 'Combos' };
 const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-export default function CatalogBrowser({ products, onSelect }) {
+export default function CatalogBrowser({ products, onSelect, search, setSearch, onFilteringChange }) {
   const resultsId = useId();
-  const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [sort, setSort] = useState('name');
   const [inStock, setInStock] = useState(false);
@@ -28,6 +27,7 @@ export default function CatalogBrowser({ products, onSelect }) {
   const query = normalize(search.trim());
   const filtering = Boolean(query || category || maxPrice !== '' || inStock || sort !== 'name');
   const showingResults = filtering || showAll;
+  useEffect(() => { onFilteringChange(showingResults); }, [showingResults, onFilteringChange]);
   const results = products.filter(p =>
     (!category || p.categoria === category) && (!inStock || p.stock > 0) &&
     (maxPrice === '' || Number(p.precio) <= Number(maxPrice)) &&
@@ -49,20 +49,17 @@ export default function CatalogBrowser({ products, onSelect }) {
   function clear() { setSearch(''); setCategory(''); setSort('name'); setInStock(false); setMaxPrice(''); setShowAll(false); }
 
   return <div className="catalog-browser">
-    <aside className="catalog-search-panel" aria-label="Búsqueda del menú">
-      <div className="catalog-search-heading"><SlidersHorizontal size={20}/><span>ENCUENTRA TU FAVORITO</span></div>
-      <h2>¿Qué te provoca hoy?</h2>
-      <p>Escribe y descubre los productos que tenemos para ti.</p>
-      <form className="catalog-search-form" role="search" onSubmit={e => e.preventDefault()}>
-        <label>Buscar productos<span className="catalog-search-input"><Search size={19} aria-hidden="true"/><input type="search" placeholder="Café, croissant, pan…" value={search} aria-controls={resultsId} onChange={e => { setSearch(e.target.value); setShowAll(false); }}/></span></label>
-        <label>Categoría<select value={category} aria-controls={resultsId} onChange={e => { setCategory(e.target.value); setShowAll(false); }}><option value="">Todas las categorías</option>{Object.entries(categories).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+    <div className="catalog-search-panel" aria-label="Categorías y filtros del menú">
+      <form className="catalog-search-form" onSubmit={e => e.preventDefault()}>
+        <div className="catalog-category-list" aria-label="Categorías">{[['','Todo'],...Object.entries(categories)].map(([value,label])=><button type="button" key={value} className={category===value?'is-selected':''} aria-pressed={category===value} aria-controls={resultsId} onClick={()=>{setCategory(value);setShowAll(false);}}>{label}</button>)}</div>
+        <details className="catalog-extra-filters"><summary><SlidersHorizontal size={17}/> Filtros</summary><div className="catalog-filter-fields">
         <label>Ordenar<select value={sort} onChange={e => { setSort(e.target.value); setShowAll(false); }}><option value="name">Nombre</option><option value="price-asc">Menor precio</option><option value="price-desc">Mayor precio</option></select></label>
         <label>Precio máximo (S/)<input type="number" min="0" step="0.01" value={maxPrice} onChange={e => { setMaxPrice(e.target.value); setShowAll(false); }}/></label>
         <label className="catalog-stock-filter"><input type="checkbox" checked={inStock} onChange={e => { setInStock(e.target.checked); setShowAll(false); }}/>Solo disponibles</label>
         <button type="button" className="button secondary" onClick={clear}>Limpiar filtros</button>
+        </div></details>
       </form>
-      <p className="catalog-search-note">Los resultados se actualizan mientras escribes.</p>
-    </aside>
+    </div>
 
     <section id={resultsId} className="catalog-results-panel" aria-labelledby={`${resultsId}-heading`}>
       <header className="catalog-results-heading">
@@ -74,7 +71,7 @@ export default function CatalogBrowser({ products, onSelect }) {
         <span className="catalog-result-image"><ProductVisual product={p}/></span>
         <span className="catalog-result-category">{categories[p.categoria]}</span>
         <strong>{p.nombre}</strong><span className="catalog-result-description">{p.descripcion}</span>
-        <span className="catalog-result-price">Desde {money(p.precio)}</span>{!showingResults && <small className="catalog-suggestion-reason">{recommendations.find(r => r.producto.idProducto === p.idProducto)?.motivo || 'Selección de hoy'}</small>}
+        <span className="catalog-result-price">Desde {money(p.precio)}</span>{!showingResults && <small className="catalog-suggestion-reason">{recommendations.find(r => r.producto.idProducto === p.idProducto)?.motivo || 'Selección de hoy'}</small>}<span className="catalog-card-action">Ver producto <span aria-hidden="true">↗</span></span>
         {!p.stock && <span className="catalog-result-stock">Agotado</span>}
       </button>)}</div>
       {!visible.length && <div className="catalog-search-empty"><Search size={30}/><h3>{showingResults ? 'No encontramos coincidencias' : 'Pronto tendremos más sugerencias'}</h3><p>{showingResults ? 'Prueba con otro nombre o cambia los filtros.' : 'Puedes explorar el menú completo para ver todos los productos.'}</p>{showingResults && <button className="button secondary" onClick={clear}>Volver a las sugerencias</button>}</div>}

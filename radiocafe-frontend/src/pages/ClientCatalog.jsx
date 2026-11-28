@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ChevronRight, MapPin, Minus, Plus, ShoppingBag, ArrowLeft, Check } from 'lucide-react';
+import { ChevronRight, MapPin, Minus, Plus, ShoppingBag, ArrowLeft, Check, Search } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
 import { api, money } from '../lib/api';
 import useAction from '../lib/useAction';
@@ -34,6 +34,8 @@ export default function ClientCatalog() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState(null);
+  const [search, setSearch] = useState('');
+  const [menuFiltering, setMenuFiltering] = useState(false);
   const [choice, setChoice] = useState(freshChoice);
   const [quantity, setQuantity] = useState(1);
   const [cart, setCart] = useSessionCart(user?.idUsuario ?? 'guest');
@@ -92,7 +94,7 @@ export default function ClientCatalog() {
     if (!cartOpen && cartDialog.current.open) cartDialog.current.close();
   }, [cartOpen]);
   useEffect(()=>{const refresh=()=>user&&void api('/orders').then(setOrders).catch(()=>{});window.addEventListener('orders-updated',refresh);return()=>window.removeEventListener('orders-updated',refresh);},[user]);
-  useEffect(()=>{const requested=params.get('seccion');if((user?['menu','catalog','orders','kappu','support']:['menu','catalog']).includes(requested)){setTab(requested);setCartOpen(false);setSelectedId(null);}},[params,user]);
+  useEffect(()=>{const requested=params.get('seccion');if((user?['menu','catalog','orders','kappu','support']:['menu','catalog']).includes(requested)){setTab(requested==='catalog'?'menu':requested);setCartOpen(false);setSelectedId(null);}},[params,user]);
   function selectProduct(product,source='menu') {
     setSelectedId(product.idProducto); setChoice(freshChoice); setQuantity(1); setAdded(false); setTab(source);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -121,17 +123,17 @@ export default function ClientCatalog() {
     await refreshOrders();window.scrollTo({top:0});
   }
   function openSection(section){setCartOpen(false);setSelectedId(null);setTab(section);if(section==='orders')void action(refreshOrders);}
-  const navigation=user?<><button className={tab==='menu'?'nav-active':''} onClick={()=>openSection('menu')}>Menú</button><button className={tab==='catalog'?'nav-active':''} onClick={()=>openSection('catalog')}>Catálogo</button><button className={tab==='orders'?'nav-active':''} onClick={()=>openSection('orders')}>Mis pedidos</button><button className={tab==='kappu'?'nav-active':''} onClick={()=>openSection('kappu')}>Kappu</button><button className={tab==='support'?'nav-active':''} onClick={()=>openSection('support')}>Atención</button></>:<><button className={tab==='menu'?'nav-active':''} onClick={()=>openSection('menu')}>Menú</button><button className={tab==='catalog'?'nav-active':''} onClick={()=>openSection('catalog')}>Catálogo</button><Link to="/mis-pedidos">Mis pedidos</Link><Link to="/kappu">Kappu</Link><Link to="/?acceso=login">Iniciar sesión</Link></>;
-  const tools=<><button className="delivery-header" onClick={()=>setCartOpen(true)}><MapPin size={17}/><span>{delivery==='PICKUP'?'Recojo en local':address||'Selecciona tu dirección'}</span></button><button className="cart-header" aria-label={`Ver mi pedido, ${count} productos`} onClick={()=>setCartOpen(true)}><ShoppingBag size={22}/><span>{count}</span></button></>;
+  const navigation=user?<><button className={tab==='menu'?'nav-active':''} onClick={()=>openSection('menu')}>Menú</button><button className={tab==='orders'?'nav-active':''} onClick={()=>openSection('orders')}>Mis pedidos</button><button className={tab==='kappu'?'nav-active':''} onClick={()=>openSection('kappu')}>Kappu</button><button className={tab==='support'?'nav-active':''} onClick={()=>openSection('support')}>Atención</button></>:<><button className={tab==='menu'?'nav-active':''} onClick={()=>openSection('menu')}>Menú</button><Link to="/mis-pedidos">Mis pedidos</Link><Link to="/kappu">Kappu</Link><Link to="/?acceso=login">Iniciar sesión</Link></>;
+  const tools=<><form className="header-product-search" role="search" onSubmit={e=>e.preventDefault()}><Search size={18} aria-hidden="true"/><input type="search" aria-label="Buscar productos en el menú" placeholder="Buscar productos" value={search} onChange={e=>{setSearch(e.target.value);setTab('menu');setSelectedId(null);setCartOpen(false);}} /></form><button className="delivery-header" onClick={()=>setCartOpen(true)}><MapPin size={17}/><span>{delivery==='PICKUP'?'Recojo en local':address||'Selecciona tu dirección'}</span></button><button className="cart-header" aria-label={`Ver mi pedido, ${count} productos`} onClick={()=>setCartOpen(true)}><ShoppingBag size={22}/><span>{count}</span></button></>;
   return <Layout variant="ordering" navigation={navigation} tools={tools} hideHeader={cartOpen}>
     <main className={`ordering-page ${['menu','catalog'].includes(tab) && selected ? 'has-order-bar' : ''} ${showCartShortcut ? 'has-cart-shortcut' : ''}`}>
       <div className="order-breadcrumb"><div><button onClick={() => { setTab('menu'); setSelectedId(null); }}>Menú</button><ChevronRight size={16}/>{['menu','catalog'].includes(tab) && selected ? <><button onClick={() => setSelectedId(null)}>{categories[selected.categoria]}</button><ChevronRight size={16}/><span>{selected.nombre}</span></> : <span>{tab === 'orders' ? 'Mis pedidos' : tab === 'kappu' ? 'Concurso Kappu' : tab === 'support' ? 'Atención al cliente' : tab==='catalog'?'Catálogo':'Todos los productos'}</span>}</div></div>
       <div className="ordering-content">
         {(error || loadError) && <p className="notice error" role="alert">{error || loadError}</p>}{(message||checkoutMessage) && <p className="notice success" role="status">{message||checkoutMessage}</p>}
         {loading ? <p role="status" className="loading">Preparando tu menú…</p> : ['menu','catalog'].includes(tab) ? selected && options ? <><ProductCustomizer product={selected} options={options} choice={choice} onChange={value => { setChoice(value); setAdded(false); }}/><ProductReviews key={selected.idProducto} product={selected} user={user}/></>
-          : tab==='catalog'?<FullCatalog products={products} onSelect={p=>selectProduct(p,'catalog')}/>:<section className="ordering-menu"><div className="menu-intro"><p className="eyebrow">RADIOCAFÉ A TU MANERA</p><h1>Un momento para ti.</h1><p>Elige tu favorito. Nosotros lo preparamos a tu gusto.</p></div>
-            <BaristaAvailability/><button className="kappu-catalog-invite" onClick={()=>user?setTab('kappu'):navigate('/kappu')}><img src="/assets/kappu-mascota.png" alt="Kappu, nuestro zorrito mascota"/><span><small>ARTE, CAFÉ Y COMUNIDAD</small><strong>Participa en el concurso de la mascota Kappu y llévate un premio</strong><span>Ver galería o participar</span></span></button>
-            <CatalogBrowser products={products} onSelect={selectProduct}/>
+          : <section className="ordering-menu"><div className="menu-intro"><h1>Nuestro menú</h1><BaristaAvailability/></div>
+            <CatalogBrowser products={products} onSelect={selectProduct} search={search} setSearch={setSearch} onFilteringChange={setMenuFiltering}/>
+            {!menuFiltering && !search.trim() && <FullCatalog products={products} onSelect={selectProduct} showIndex={false}/>}
             <CommerceShowcase/>
           </section> : tab === 'orders' ? <Orders orders={orders} role="CLIENTE" refresh={refreshOrders} action={action} busy={busy}/> : tab === 'support' ? <SupportPanel/> : <Contest user={user} action={action} busy={busy}/>}
       </div>

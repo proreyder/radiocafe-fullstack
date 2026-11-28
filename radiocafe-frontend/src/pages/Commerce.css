@@ -38,6 +38,10 @@
 .commerce-metrics>span { background: #fff3e4; padding: 1rem; border-radius: .7rem; flex: 1 1 180px; }
 .commerce-metrics strong { display: block; font-size: 1.6rem; color: #a84617; }
 .home-commerce { max-width: 1100px; padding: 0 1.5rem; margin: 2rem auto; }
+.home-promotions { display:grid; gap:12px; }
+.home-promotion { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:24px 30px; border:1px solid #ecd6bd; border-radius:18px; background:linear-gradient(110deg,#fff6e8,#fbe7cf); color:#633b25; }
+.home-promotion-copy { min-width:0; }.home-promotion-label { color:#b75220; font-size:.68rem; font-weight:750; letter-spacing:.14em; }.home-promotion h2 { margin:6px 0; font-size:clamp(1.3rem,2vw,1.65rem); }.home-promotion p { margin:0 0 6px; font-size:.9rem; }.home-promotion p strong { color:#ad4c1a; letter-spacing:.08em; }.home-promotion small { color:#8e705a; font-size:.74rem; line-height:1.5; }.home-promotion-link { display:inline-flex; align-items:center; gap:10px; flex:none; color:#a84617; font-size:.88rem; font-weight:700; text-decoration:none; }.home-promotion-link:hover { text-decoration:underline; }
+@media(max-width:600px) { .home-promotion { align-items:flex-start; flex-direction:column; gap:14px; padding:20px; }.home-promotion h2 { font-size:1.35rem; } }
 .order-cart-checkout>.coupon-box { display: grid; gap: .65rem; align-items: stretch; }
 .coupon-box label { display: grid; gap: .4rem; }
 .coupon-box input { width: 100%; min-width: 0; }

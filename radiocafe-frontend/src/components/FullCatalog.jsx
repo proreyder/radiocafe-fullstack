@@ -2,13 +2,13 @@ import ProductVisual from './ProductVisual';
 import { money } from '../lib/api';
 import '../pages/FullCatalog.css';
 const categories = { CAFE: 'Cafés y bebidas', PASTELERIA: 'Panadería y pastelería', COMBO: 'Combos' };
-export default function FullCatalog({ products, onSelect, readOnly = false }) {
+export default function FullCatalog({ products, onSelect, readOnly = false, showIndex = true }) {
   const Card = readOnly ? 'article' : 'button';
   return <section className="full-catalog">
     <h1 className="catalog-accessible-title">Catálogo de productos</h1>
-    <nav className="full-catalog-index" aria-label="Categorías del catálogo">
+    {showIndex && <nav className="full-catalog-index" aria-label="Categorías del catálogo">
       {Object.entries(categories).filter(([id]) => products.some(p => p.categoria === id)).map(([id, label]) => <a key={id} href={`#variedades-${id.toLowerCase()}`}>{label}</a>)}
-    </nav>
+    </nav>}
     {Object.entries(categories).map(([id, label]) => {
       const list = products.filter(p => p.categoria === id);
       return list.length > 0 && <section className="full-catalog-category" id={`variedades-${id.toLowerCase()}`} key={id}>

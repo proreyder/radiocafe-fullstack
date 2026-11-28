@@ -49,3 +49,10 @@
  .artisan-layout.home-layout .site-chrome.is-scrolled .site-header nav .artisan-nav-login { font-size:.7rem;padding:8px 12px; }
 }
 @media(prefers-reduced-motion:reduce) { .artisan-layout .site-chrome.floating-site-header>.site-header,.artisan-layout .site-chrome.floating-site-header .brand.official-brand { transition:none; } }
+
+.artisan-layout .header-product-search { display:flex; align-items:center; gap:8px; width:190px; padding:9px 12px; border:1px solid #e6c9a6; border-radius:999px; background:#fffaf2; color:#a55224; }
+.artisan-layout .header-product-search:focus-within { border-color:#c45a22; box-shadow:0 0 0 3px #ce61231c; }
+.artisan-layout .header-product-search input { width:100%; min-width:0; padding:0; border:0; outline:0; background:transparent; color:#573a27; font-size:.85rem; }
+.artisan-layout .header-product-search input::placeholder { color:#a98870; }
+@media(max-width:1000px) { .artisan-layout .header-product-search { width:160px; } }
+@media(max-width:700px) { .artisan-layout .header-product-search { width:100%; max-width:260px; order:4; } }
